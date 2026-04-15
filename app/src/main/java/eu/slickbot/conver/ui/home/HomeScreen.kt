@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -109,7 +111,7 @@ fun HomeScreen(
       contentPadding = PaddingValues(16.dp),
     ) {
       if (state.favorites.isNotEmpty()) {
-        item(span = { GridItemSpan(2) }) {
+        maxSpanItem {
           SectionBlock(title = "Favorites") {
             LazyRow(
               horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -126,7 +128,7 @@ fun HomeScreen(
       }
 
       if (state.recents.isNotEmpty()) {
-        item(span = { GridItemSpan(2) }) {
+        maxSpanItem {
           SectionBlock(title = "Recent") {
             LazyRow(
               horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -143,7 +145,7 @@ fun HomeScreen(
         }
       }
 
-      item(span = { GridItemSpan(2) }) {
+      maxSpanItem {
         SectionTitle(text = "Browse")
       }
 
@@ -186,5 +188,18 @@ private fun SectionTitle(
       fontWeight = FontWeight.SemiBold,
     ),
     color = MaterialTheme.colorScheme.onSurface,
+  )
+}
+
+private fun LazyGridScope.maxSpanItem(
+  key: Any? = null,
+  contentType: Any? = null,
+  content: @Composable LazyGridItemScope.() -> Unit,
+) {
+  item(
+    key = key,
+    span = { GridItemSpan(maxLineSpan) },
+    contentType = contentType,
+    content = content,
   )
 }

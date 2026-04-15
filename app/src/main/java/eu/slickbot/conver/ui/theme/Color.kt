@@ -5,7 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-// Seed colour for Conver's brand palette (used when dynamic colour is unavailable).
+// Seed color for Conver's brand palette (used when dynamic color is unavailable).
 private val Seed = Color(0xFF5B7FFF)
 
 internal val LightColors: ColorScheme = lightColorScheme(

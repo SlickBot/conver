@@ -14,7 +14,11 @@ sealed interface Destination {
   @Serializable data object Favorites : Destination
   @Serializable data object Settings : Destination
 
-  @Serializable data class Measurement(val converterId: String) : Destination
+  /**
+   * Generic converter detail route. Resolved at runtime through [ConverterRegistry] and dispatched
+   * to the correct screen template based on the converter kind.
+   */
+  @Serializable data class Converter(val converterId: String) : Destination
 }
 
 enum class TopLevelDestination(
