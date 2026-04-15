@@ -4,87 +4,34 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.slickbot.conver.data.prefs.UserPreferencesRepository
+import eu.slickbot.conver.ui.navigation.ConverNavHost
 import eu.slickbot.conver.ui.theme.ConverTheme
+import org.koin.compose.koinInject
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
+    installSplashScreen()
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    setContent {
-      ConverTheme {
-        ConverApp()
-      }
-    }
+    setContent { ConverRoot() }
   }
 }
 
-@PreviewScreenSizes
 @Composable
-fun ConverApp() {
-  var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+fun ConverRoot() {
+  val prefsRepo: UserPreferencesRepository = koinInject()
+  val prefs by prefsRepo.preferences.collectAsStateWithLifecycle(initialValue = null)
 
-  NavigationSuiteScaffold(
-    navigationSuiteItems = {
-      AppDestinations.entries.forEach {
-        item(
-          icon = {
-            Icon(
-              painterResource(it.icon),
-              contentDescription = it.label
-            )
-          },
-          label = { Text(it.label) },
-          selected = it == currentDestination,
-          onClick = { currentDestination = it }
-        )
-      }
-    }
+  val settings = prefs
+  ConverTheme(
+    themeMode = settings?.themeMode ?: eu.slickbot.conver.ui.theme.ThemeMode.System,
+    dynamicColor = settings?.dynamicColor ?: true,
   ) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-      Greeting(
-        name = "Android",
-        modifier = Modifier.padding(innerPadding)
-      )
-    }
-  }
-}
-
-enum class AppDestinations(
-  val label: String,
-  val icon: Int,
-) {
-  HOME("Home", R.drawable.ic_home),
-  FAVORITES("Favorites", R.drawable.ic_favorite),
-  PROFILE("Profile", R.drawable.ic_account_box),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  ConverTheme {
-    Greeting("Android")
+    ConverNavHost()
   }
 }
