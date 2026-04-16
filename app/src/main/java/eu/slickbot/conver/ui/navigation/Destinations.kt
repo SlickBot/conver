@@ -13,16 +13,12 @@ sealed interface Destination {
   @Serializable data object Browse : Destination
   @Serializable data object Favorites : Destination
   @Serializable data object Settings : Destination
-
-  /**
-   * Generic converter detail route. Resolved at runtime through [ConverterRegistry] and dispatched
-   * to the correct screen template based on the converter kind.
-   */
+  @Serializable data class CategoryDetail(val categoryId: String) : Destination
   @Serializable data class Converter(val converterId: String) : Destination
 }
 
 enum class TopLevelDestination(
-  val destination: Destination,
+  val route: Destination,
   val label: String,
   val icon: ImageVector,
 ) {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -18,8 +19,13 @@ import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
@@ -41,6 +47,7 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 @Composable
 fun HomeScreen(
   onConverterClick: (String) -> Unit,
+  onCategoryClick: (Category) -> Unit,
   onBrowseAllClick: () -> Unit,
   viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -67,8 +74,31 @@ fun HomeScreen(
           onExpandedChange = viewModel::onSearchingChange,
           enabled = true,
           placeholder = { Text("Search any converter…") },
-          leadingIcon = null,
-          trailingIcon = null,
+          leadingIcon = {
+            if (state.searching) {
+              IconButton(onClick = {
+                viewModel.onQueryChange("")
+                viewModel.onSearchingChange(false)
+              }) {
+                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+              }
+            } else {
+              Icon(
+                Icons.Outlined.Search,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+              )
+            }
+          },
+          trailingIcon = if (state.query.isNotEmpty()) {
+            {
+              IconButton(onClick = { viewModel.onQueryChange("") }) {
+                Icon(Icons.Outlined.Close, contentDescription = "Clear")
+              }
+            }
+          } else {
+            null
+          },
           colors = searchBarColors.inputFieldColors,
           interactionSource = null,
         )
@@ -155,7 +185,7 @@ fun HomeScreen(
       ) { category ->
         CategoryTile(
           category = category,
-          onClick = onBrowseAllClick,
+          onClick = { onCategoryClick(category) },
         )
       }
     }

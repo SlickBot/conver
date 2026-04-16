@@ -1,6 +1,7 @@
 package eu.slickbot.conver.di
 
 import eu.slickbot.conver.ui.browse.BrowseViewModel
+import eu.slickbot.conver.ui.browse.CategoryDetailViewModel
 import eu.slickbot.conver.ui.converter.MeasurementViewModel
 import eu.slickbot.conver.ui.converter.TextTransformViewModel
 import eu.slickbot.conver.ui.favorites.FavoritesViewModel
@@ -17,4 +18,5 @@ val viewModelModule: Module = module {
   viewModel { SettingsViewModel(get()) }
   viewModel { (converterId: String) -> MeasurementViewModel(converterId, get(), get()) }
   viewModel { (converterId: String) -> TextTransformViewModel(converterId, get(), get()) }
+  viewModel { (categoryId: String) -> CategoryDetailViewModel(categoryId, get()) }
 }

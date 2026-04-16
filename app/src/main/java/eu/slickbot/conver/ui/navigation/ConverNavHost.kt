@@ -8,10 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,6 +28,7 @@ import eu.slickbot.conver.domain.converter.ConverterRegistry
 import eu.slickbot.conver.domain.converter.MeasurementConverter
 import eu.slickbot.conver.domain.converter.TextConverter
 import eu.slickbot.conver.ui.browse.BrowseScreen
+import eu.slickbot.conver.ui.browse.CategoryDetailScreen
 import eu.slickbot.conver.ui.converter.MeasurementScreen
 import eu.slickbot.conver.ui.converter.TextTransformScreen
 import eu.slickbot.conver.ui.favorites.FavoritesScreen
@@ -30,27 +36,46 @@ import eu.slickbot.conver.ui.home.HomeScreen
 import eu.slickbot.conver.ui.settings.SettingsScreen
 import org.koin.compose.koinInject
 
+/**
+ * Stack model:
+ *  - [Home] is always at the bottom and never popped (back from Home = exit app).
+ *  - Switching to another tab: [Home, Tab]
+ *  - Drilling from any screen: [Home, Tab?, Detail]
+ *  - Clicking a tab always pops everything above Home, then pushes the tab root (or stays
+ *    on Home if the Home tab was tapped).
+ */
 @Composable
 fun ConverNavHost(
   navController: NavHostController = rememberNavController(),
 ) {
-  val backStackEntry by navController.currentBackStackEntryAsState()
-  val currentRoute = backStackEntry?.destination?.route
+  var currentTab by rememberSaveable { mutableStateOf(TopLevelDestination.Home) }
 
-  val selectedTop = TopLevelDestination.entries.firstOrNull { top ->
-    currentRoute == top.destination::class.qualifiedName
-  } ?: TopLevelDestination.Home
+  // Sync tab highlight when back-press lands on a tab root screen.
+  val backStackEntry by navController.currentBackStackEntryAsState()
+  val dest = backStackEntry?.destination
+  val tabFromBackStack = TopLevelDestination.entries.firstOrNull { top ->
+    dest?.hasRoute(top.route::class) == true
+  }
+  LaunchedEffect(tabFromBackStack) {
+    if (tabFromBackStack != null) currentTab = tabFromBackStack
+  }
 
   NavigationSuiteScaffold(
     navigationSuiteItems = {
       TopLevelDestination.entries.forEach { top ->
         item(
-          selected = top == selectedTop,
+          selected = top == currentTab,
           onClick = {
-            navController.navigate(top.destination) {
-              popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-              launchSingleTop = true
-              restoreState = true
+            currentTab = top
+            if (top == TopLevelDestination.Home) {
+              // Pop everything above Home. If already on Home → no-op.
+              navController.popBackStack<Destination.Home>(inclusive = false)
+            } else {
+              // Pop to Home (keep it), push the target tab root.
+              navController.navigate(top.route) {
+                popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
+                launchSingleTop = true
+              }
             }
           },
           icon = { Icon(top.icon, contentDescription = top.label) },
@@ -66,7 +91,16 @@ fun ConverNavHost(
       composable<Destination.Home> {
         HomeScreen(
           onConverterClick = { id -> navController.navigate(Destination.Converter(id)) },
-          onBrowseAllClick = { navController.navigate(Destination.Browse) },
+          onCategoryClick = { category ->
+            navController.navigate(Destination.CategoryDetail(category.name))
+          },
+          onBrowseAllClick = {
+            currentTab = TopLevelDestination.Browse
+            navController.navigate(Destination.Browse) {
+              popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
+              launchSingleTop = true
+            }
+          },
         )
       }
       composable<Destination.Browse> {
@@ -80,45 +114,41 @@ fun ConverNavHost(
         )
       }
       composable<Destination.Settings> { SettingsScreen() }
+      composable<Destination.CategoryDetail> { entry ->
+        val args = entry.toRoute<Destination.CategoryDetail>()
+        CategoryDetailScreen(
+          categoryId = args.categoryId,
+          onBack = { navController.popBackStack() },
+          onConverterClick = { id -> navController.navigate(Destination.Converter(id)) },
+        )
+      }
       composable<Destination.Converter> { entry ->
         val args = entry.toRoute<Destination.Converter>()
-        ConverterDispatch(
-          converterId = args.converterId,
-          onBack = { navController.popBackStack() },
-        )
+        ConverterDispatch(args.converterId, onBack = { navController.popBackStack() })
       }
     }
   }
 }
 
-/** Resolves a converter's kind and renders the right screen template. */
 @Composable
-private fun ConverterDispatch(
-  converterId: String,
-  onBack: () -> Unit,
-) {
+private fun ConverterDispatch(converterId: String, onBack: () -> Unit) {
   val registry: ConverterRegistry = koinInject()
-  val converter = registry[converterId]
-  when (converter) {
+  when (registry[converterId]) {
     is MeasurementConverter -> MeasurementScreen(converterId = converterId, onBack = onBack)
     is TextConverter -> TextTransformScreen(converterId = converterId, onBack = onBack)
-    null -> UnknownConverterPlaceholder(converterId = converterId, onBack = onBack)
+    null -> {
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(32.dp),
+        contentAlignment = Alignment.Center,
+      ) {
+        Text(
+          "Unknown converter: $converterId",
+          style = MaterialTheme.typography.titleMedium,
+        )
+      }
+      LaunchedEffect(converterId) { onBack() }
+    }
   }
-}
-
-@Composable
-private fun UnknownConverterPlaceholder(converterId: String, onBack: () -> Unit) {
-  Box(
-    modifier = Modifier
-      .fillMaxSize()
-      .padding(32.dp),
-    contentAlignment = Alignment.Center,
-  ) {
-    Text(
-      text = "Unknown converter: $converterId",
-      style = MaterialTheme.typography.titleMedium,
-    )
-  }
-  // Trigger a pop so the nav stack doesn't get stuck on this placeholder.
-  androidx.compose.runtime.LaunchedEffect(converterId) { onBack() }
 }
