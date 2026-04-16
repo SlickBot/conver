@@ -1,6 +1,8 @@
 package eu.slickbot.conver.ui.converter
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,11 +31,11 @@ import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material.icons.outlined.UnfoldMore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +48,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -57,7 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.domain.converter.MeasureUnit
@@ -100,6 +101,16 @@ fun MeasurementScreenContent(
   val haptic = LocalHapticFeedback.current
   val clipboard = LocalClipboardManager.current
   val result = state.resultString.ifEmpty { "0" }
+  val fromUnit = state.converter.unit(state.fromUnitId)
+  val toUnit = state.converter.unit(state.toUnitId)
+
+  // Swap button rotation
+  var swapTicks by remember { mutableIntStateOf(0) }
+  val swapRotation by animateFloatAsState(
+    targetValue = swapTicks * 180f,
+    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
+    label = "swap",
+  )
 
   ConverScaffold(
     title = state.converter.name,
@@ -125,75 +136,97 @@ fun MeasurementScreenContent(
       horizontalArrangement = Arrangement.spacedBy(8.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      // --- Conversion pair (full span) ---
+      // --- Conversion card (full span) ---
       item(span = { GridItemSpan(3) }) {
-        Box {
-          Column {
-            // FROM field
-            ConversionField(
-              value = state.input,
-              onValueChange = onInputChange,
-              unit = state.converter.unit(state.fromUnitId),
-              allUnits = state.converter.units,
-              onUnitChange = onFromChange,
-              editable = true,
-              shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp),
-              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-              contentColor = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(Modifier.height(3.dp))
-            // TO field
-            ConversionField(
-              value = result,
-              onValueChange = {},
-              unit = state.converter.unit(state.toUnitId),
-              allUnits = state.converter.units,
-              onUnitChange = onToChange,
-              editable = false,
-              shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
-              containerColor = MaterialTheme.colorScheme.primaryContainer,
-              contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-              trailingIcon = {
+        Surface(
+          shape = RoundedCornerShape(28.dp),
+          color = MaterialTheme.colorScheme.surfaceContainerHigh,
+          modifier = Modifier.fillMaxWidth(),
+        ) {
+          Box {
+            Column {
+              // FROM section
+              ConversionHalf(
+                value = state.input,
+                onValueChange = onInputChange,
+                unit = fromUnit,
+                allUnits = state.converter.units,
+                onUnitChange = onFromChange,
+                editable = true,
+                valueColor = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 16.dp),
+              )
+
+              // Divider
+              HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                modifier = Modifier.padding(horizontal = 20.dp),
+              )
+
+              // TO section
+              Row(
+                modifier = Modifier.padding(start = 20.dp, end = 8.dp, top = 16.dp, bottom = 20.dp),
+                verticalAlignment = Alignment.Top,
+              ) {
+                ConversionHalf(
+                  value = result,
+                  onValueChange = {},
+                  unit = toUnit,
+                  allUnits = state.converter.units,
+                  onUnitChange = onToChange,
+                  editable = false,
+                  valueColor = MaterialTheme.colorScheme.primary,
+                  modifier = Modifier.weight(1f),
+                )
                 IconButton(onClick = {
                   clipboard.setText(AnnotatedString(result))
                   haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }) {
                   Icon(
                     Icons.Outlined.ContentCopy, "Copy",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                     modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                   )
                 }
-              },
-            )
-          }
-          // Floating swap button
-          Box(
-            modifier = Modifier
-              .align(Alignment.Center)
-              .zIndex(1f),
-          ) {
-            FilledIconButton(
+              }
+            }
+
+            // Floating swap FAB on the divider
+            SmallFloatingActionButton(
               onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                swapTicks += 1
                 onSwap()
               },
-              modifier = Modifier.size(44.dp),
-              colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary,
-              ),
+              modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 20.dp)
+                .zIndex(1f),
+              containerColor = MaterialTheme.colorScheme.secondaryContainer,
+              contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             ) {
-              Icon(Icons.Outlined.SwapVert, "Swap", modifier = Modifier.size(22.dp))
+              Icon(
+                Icons.Outlined.SwapVert, "Swap",
+                modifier = Modifier
+                  .size(20.dp)
+                  .rotate(swapRotation),
+              )
             }
           }
         }
       }
 
-      // --- Quick units grid ---
+      // --- Quick units header ---
       item(span = { GridItemSpan(3) }) {
-        Spacer(Modifier.height(4.dp))
+        Text(
+          "All units",
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.padding(top = 8.dp, bottom = 2.dp),
+        )
       }
+
+      // --- Quick units grid ---
       items(state.otherUnits, key = { it.id }) { unit ->
         QuickUnitChip(
           unit = unit,
@@ -206,93 +239,88 @@ fun MeasurementScreenContent(
 }
 
 @Composable
-private fun ConversionField(
+private fun ConversionHalf(
   value: String,
   onValueChange: (String) -> Unit,
   unit: MeasureUnit,
   allUnits: List<MeasureUnit>,
   onUnitChange: (String) -> Unit,
   editable: Boolean,
-  shape: RoundedCornerShape,
-  containerColor: androidx.compose.ui.graphics.Color,
-  contentColor: androidx.compose.ui.graphics.Color,
-  trailingIcon: @Composable (() -> Unit)? = null,
+  valueColor: Color,
+  modifier: Modifier = Modifier,
 ) {
   var expanded by remember { mutableStateOf(false) }
 
-  Surface(
-    shape = shape,
-    color = containerColor,
-    contentColor = contentColor,
-    modifier = Modifier.fillMaxWidth(),
-  ) {
-    Row(
-      modifier = Modifier.padding(start = 20.dp, end = 8.dp, top = 14.dp, bottom = 14.dp),
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Column(modifier = Modifier.weight(1f)) {
-        if (editable) {
-          BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            textStyle = MaterialTheme.typography.headlineMedium.copy(
-              color = contentColor,
-              fontWeight = FontWeight.SemiBold,
-            ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            decorationBox = { innerTextField ->
-              if (value.isEmpty()) {
-                Text(
-                  "0",
-                  style = MaterialTheme.typography.headlineMedium,
-                  color = contentColor.copy(alpha = 0.4f),
-                  fontWeight = FontWeight.SemiBold,
-                )
-              }
-              innerTextField()
-            },
-          )
-        } else {
-          Text(
-            text = value,
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-          )
-        }
-        Spacer(Modifier.height(2.dp))
-        // Unit selector
-        Row(
-          modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { expanded = true }
-            .padding(vertical = 2.dp, horizontal = 4.dp),
-          verticalAlignment = Alignment.CenterVertically,
-        ) {
-          Text(
-            text = "${unit.name} (${unit.symbol})",
-            style = MaterialTheme.typography.bodyMedium,
-            color = contentColor.copy(alpha = 0.7f),
-          )
-          Spacer(Modifier.width(4.dp))
-          Icon(
-            Icons.Outlined.UnfoldMore, null,
-            modifier = Modifier.size(16.dp),
-            tint = contentColor.copy(alpha = 0.5f),
-          )
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-          allUnits.forEach { u ->
-            DropdownMenuItem(
-              text = { Text("${u.name} (${u.symbol})") },
-              onClick = { onUnitChange(u.id); expanded = false },
+  Column(modifier = modifier) {
+    // Big number
+    if (editable) {
+      BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.headlineLarge.copy(
+          color = valueColor,
+          fontWeight = FontWeight.Bold,
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        decorationBox = { inner ->
+          if (value.isEmpty()) {
+            Text(
+              "0",
+              style = MaterialTheme.typography.headlineLarge,
+              color = valueColor.copy(alpha = 0.3f),
+              fontWeight = FontWeight.Bold,
             )
           }
-        }
+          inner()
+        },
+      )
+    } else {
+      Text(
+        text = value,
+        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+        color = valueColor,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+
+    Spacer(Modifier.height(4.dp))
+
+    // Unit pill
+    Row(
+      modifier = Modifier
+        .clip(RoundedCornerShape(8.dp))
+        .clickable { expanded = true }
+        .padding(vertical = 2.dp),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Text(
+        unit.name,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      Spacer(Modifier.width(2.dp))
+      Text(
+        "(${unit.symbol})",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+      )
+      Spacer(Modifier.width(4.dp))
+      Icon(
+        Icons.Outlined.UnfoldMore, null,
+        modifier = Modifier.size(16.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+      )
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+      allUnits.forEach { u ->
+        DropdownMenuItem(
+          text = { Text("${u.name} (${u.symbol})") },
+          onClick = { onUnitChange(u.id); expanded = false },
+        )
       }
-      trailingIcon?.invoke()
     }
   }
 }
