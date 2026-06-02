@@ -3,7 +3,7 @@ package eu.slickbot.conver.domain.converter.converters
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Boy
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.DirectionsRun
+import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Public
@@ -13,7 +13,6 @@ import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.MeasurementConverter
 import eu.slickbot.conver.domain.converter.TextConverter
 import java.util.Locale
-import kotlin.math.pow
 
 // ---------- Shoe size --------------------------------------------------------------------------
 
@@ -224,7 +223,7 @@ fun runningPaceConverter(): MeasurementConverter = MeasurementConverter(
   id = "running-pace",
   name = "Running pace",
   category = Category.Everyday,
-  icon = Icons.Outlined.DirectionsRun,
+  icon = Icons.AutoMirrored.Outlined.DirectionsRun,
   aliases = listOf("pace", "running", "jogging", "marathon"),
   units = listOf(
     MeasureUnit("min-km", "Minutes per km", "min/km",

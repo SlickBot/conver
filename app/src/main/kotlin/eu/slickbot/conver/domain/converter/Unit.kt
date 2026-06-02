@@ -1,11 +1,7 @@
 package eu.slickbot.conver.domain.converter
 
-/**
- * A single unit within a measurement category (meter, pound, fahrenheit, …).
- *
- * Conversions go via a hidden "base unit" per category. For simple linear units use [linear];
- * for affine units (temperature) provide [toBase] and [fromBase] directly.
- */
+import eu.slickbot.conver.domain.converter.MeasureUnit.Companion.linear
+
 data class MeasureUnit(
   val id: String,
   val name: String,

@@ -59,12 +59,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,6 +75,7 @@ import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.formatResult
 import eu.slickbot.conver.ui.components.ConverScaffold
 import eu.slickbot.conver.ui.components.scaffoldBodyPadding
+import eu.slickbot.conver.ui.util.rememberClipboardCopy
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -112,7 +111,7 @@ fun MeasurementScreenContent(
   onBack: () -> Unit,
 ) {
   val haptic = LocalHapticFeedback.current
-  val clipboard = LocalClipboardManager.current
+  val copyToClipboard = rememberClipboardCopy()
   val result = state.resultString.ifEmpty { "0" }
   val accent = state.converter.category.accent
 
@@ -219,7 +218,7 @@ fun MeasurementScreenContent(
                 )
                 IconButton(
                   onClick = {
-                    clipboard.setText(AnnotatedString(result))
+                    copyToClipboard(result)
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                   },
                   modifier = Modifier.size(36.dp),

@@ -42,8 +42,8 @@ import eu.slickbot.conver.ui.converter.CalculatorScreen
 import eu.slickbot.conver.ui.converter.MeasurementScreen
 import eu.slickbot.conver.ui.converter.TextTransformScreen
 import eu.slickbot.conver.ui.favorites.FavoritesScreen
-import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitScreen
 import eu.slickbot.conver.ui.home.HomeScreen
+import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitScreen
 import eu.slickbot.conver.ui.settings.SettingsScreen
 import org.koin.compose.koinInject
 

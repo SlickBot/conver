@@ -26,12 +26,6 @@ import org.junit.Test
 import java.io.File
 import java.io.FileOutputStream
 
-/**
- * Instrumented screenshot tests — renders screens on a real device/emulator and saves PNGs.
- *
- * Run:  ./gradlew connectedDebugAndroidTest --tests "*.ScreenScreenshotTest"
- * Pull: adb pull /sdcard/Download/conver_screenshots/ screenshots/
- */
 class ScreenScreenshotTest {
 
   @get:Rule
@@ -42,7 +36,7 @@ class ScreenScreenshotTest {
     File(ctx.getExternalFilesDir(null), "screenshots").also { it.mkdirs() }
   }
 
-  @Test fun `measurement length`() {
+  @Test fun measurement_length() {
     val converter = lengthConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -57,7 +51,7 @@ class ScreenScreenshotTest {
     saveScreenshot("measurement_length")
   }
 
-  @Test fun `measurement temperature`() {
+  @Test fun measurement_temperature() {
     val converter = temperatureConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -72,7 +66,7 @@ class ScreenScreenshotTest {
     saveScreenshot("measurement_temperature")
   }
 
-  @Test fun `text hash`() {
+  @Test fun text_hash() {
     val converter = hashConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -86,7 +80,7 @@ class ScreenScreenshotTest {
     saveScreenshot("text_hash")
   }
 
-  @Test fun `text base64`() {
+  @Test fun text_base64() {
     val converter = base64Converter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -100,7 +94,7 @@ class ScreenScreenshotTest {
     saveScreenshot("text_base64")
   }
 
-  @Test fun `receipt split equal`() {
+  @Test fun receipt_split_equal() {
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
         ReceiptSplitScreenContent(
@@ -123,7 +117,7 @@ class ScreenScreenshotTest {
     saveScreenshot("receipt_split_equal")
   }
 
-  @Test fun `receipt split items`() {
+  @Test fun receipt_split_items() {
     val people = listOf(Person(id = "1", name = "You"), Person(id = "2", name = "Alice"))
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {

@@ -18,11 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import eu.slickbot.conver.ui.theme.LocalConverTypography
+import eu.slickbot.conver.ui.util.rememberClipboardCopy
 
 /**
  * Big tabular-figure result display. Tapping copies [textToCopy] to the clipboard.
@@ -37,7 +36,7 @@ fun ResultDisplay(
   haptics: Boolean = true,
   onCopied: (String) -> Unit = {},
 ) {
-  val clipboard = LocalClipboardManager.current
+  val copyToClipboard = rememberClipboardCopy()
   val haptic = LocalHapticFeedback.current
   val numeric = LocalConverTypography.current.numericDisplay
 
@@ -45,7 +44,7 @@ fun ResultDisplay(
     modifier = modifier
       .fillMaxWidth()
       .clickable {
-        clipboard.setText(AnnotatedString(textToCopy))
+        copyToClipboard(textToCopy)
         if (haptics) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         onCopied(textToCopy)
       },

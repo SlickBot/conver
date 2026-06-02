@@ -1,9 +1,7 @@
 package eu.slickbot.conver.ui.converter
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -35,15 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.ui.components.ConverScaffold
 import eu.slickbot.conver.ui.components.scaffoldBodyPadding
+import eu.slickbot.conver.ui.util.rememberClipboardCopy
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -75,7 +72,7 @@ fun TextTransformScreenContent(
   onBack: () -> Unit,
 ) {
   val haptic = LocalHapticFeedback.current
-  val clipboard = LocalClipboardManager.current
+  val copyToClipboard = rememberClipboardCopy()
   val accent = state.converter.category.accent
   val mono = if (state.converter.monospace) FontFamily.Monospace else FontFamily.Default
 
@@ -168,7 +165,7 @@ fun TextTransformScreenContent(
             if (state.output.isNotEmpty()) {
               IconButton(
                 onClick = {
-                  clipboard.setText(AnnotatedString(state.output))
+                  copyToClipboard(state.output)
                   haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 },
                 modifier = Modifier.size(32.dp),

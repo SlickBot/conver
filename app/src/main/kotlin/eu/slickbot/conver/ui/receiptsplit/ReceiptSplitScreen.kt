@@ -60,9 +60,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -75,6 +73,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.domain.converter.Category
 import eu.slickbot.conver.ui.components.ConverScaffold
 import eu.slickbot.conver.ui.components.scaffoldBodyPadding
+import eu.slickbot.conver.ui.util.rememberClipboardCopy
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
@@ -134,7 +133,7 @@ fun ReceiptSplitScreenContent(
   onToggleFavorite: () -> Unit,
 ) {
   val haptic = LocalHapticFeedback.current
-  val clipboard = LocalClipboardManager.current
+  val copyToClipboard = rememberClipboardCopy()
 
   ConverScaffold(
     title = "Receipt split",
@@ -218,7 +217,7 @@ fun ReceiptSplitScreenContent(
           val text = state.totals.joinToString("\n") {
             "${it.person.name}: ${fmt(it.amount)}"
           }
-          clipboard.setText(AnnotatedString(text))
+          copyToClipboard(text)
           haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         },
       )

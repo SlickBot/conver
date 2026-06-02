@@ -1,13 +1,14 @@
 package eu.slickbot.conver.domain.converter
 
+import eu.slickbot.conver.domain.converter.ConverterRegistry.Companion.default
 import eu.slickbot.conver.domain.converter.converters.angleConverter
 import eu.slickbot.conver.domain.converter.converters.areaConverter
 import eu.slickbot.conver.domain.converter.converters.base64Converter
-import eu.slickbot.conver.domain.converter.converters.bmiConverter
-import eu.slickbot.conver.domain.converter.converters.clothingSizeConverter
 import eu.slickbot.conver.domain.converter.converters.baseConverter
+import eu.slickbot.conver.domain.converter.converters.bmiConverter
 import eu.slickbot.conver.domain.converter.converters.caesarConverter
 import eu.slickbot.conver.domain.converter.converters.caseConverter
+import eu.slickbot.conver.domain.converter.converters.clothingSizeConverter
 import eu.slickbot.conver.domain.converter.converters.colorConverter
 import eu.slickbot.conver.domain.converter.converters.compoundInterestConverter
 import eu.slickbot.conver.domain.converter.converters.cryptoConverter
@@ -36,6 +37,7 @@ import eu.slickbot.conver.domain.converter.converters.paperSizeConverter
 import eu.slickbot.conver.domain.converter.converters.planetAgeConverter
 import eu.slickbot.conver.domain.converter.converters.powerConverter
 import eu.slickbot.conver.domain.converter.converters.pressureConverter
+import eu.slickbot.conver.domain.converter.converters.receiptSplitConverter
 import eu.slickbot.conver.domain.converter.converters.romanConverter
 import eu.slickbot.conver.domain.converter.converters.runningPaceConverter
 import eu.slickbot.conver.domain.converter.converters.shoeSizeConverter
@@ -43,7 +45,6 @@ import eu.slickbot.conver.domain.converter.converters.slugConverter
 import eu.slickbot.conver.domain.converter.converters.speedConverter
 import eu.slickbot.conver.domain.converter.converters.taxConverter
 import eu.slickbot.conver.domain.converter.converters.temperatureConverter
-import eu.slickbot.conver.domain.converter.converters.receiptSplitConverter
 import eu.slickbot.conver.domain.converter.converters.timestampConverter
 import eu.slickbot.conver.domain.converter.converters.torqueConverter
 import eu.slickbot.conver.domain.converter.converters.unicodeConverter
