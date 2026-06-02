@@ -42,8 +42,7 @@ class ScreenScreenshotTest {
     File(ctx.getExternalFilesDir(null), "screenshots").also { it.mkdirs() }
   }
 
-  @Test
-  fun measurement_length() {
+  @Test fun `measurement length`() {
     val converter = lengthConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -58,8 +57,7 @@ class ScreenScreenshotTest {
     saveScreenshot("measurement_length")
   }
 
-  @Test
-  fun measurement_temperature() {
+  @Test fun `measurement temperature`() {
     val converter = temperatureConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -74,8 +72,7 @@ class ScreenScreenshotTest {
     saveScreenshot("measurement_temperature")
   }
 
-  @Test
-  fun text_hash() {
+  @Test fun `text hash`() {
     val converter = hashConverter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -89,8 +86,7 @@ class ScreenScreenshotTest {
     saveScreenshot("text_hash")
   }
 
-  @Test
-  fun text_base64() {
+  @Test fun `text base64`() {
     val converter = base64Converter()
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
@@ -104,8 +100,7 @@ class ScreenScreenshotTest {
     saveScreenshot("text_base64")
   }
 
-  @Test
-  fun receipt_split_equal() {
+  @Test fun `receipt split equal`() {
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
         ReceiptSplitScreenContent(
@@ -128,8 +123,7 @@ class ScreenScreenshotTest {
     saveScreenshot("receipt_split_equal")
   }
 
-  @Test
-  fun receipt_split_items() {
+  @Test fun `receipt split items`() {
     val people = listOf(Person(id = "1", name = "You"), Person(id = "2", name = "Alice"))
     rule.setContent {
       ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
