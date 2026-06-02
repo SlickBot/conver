@@ -1,7 +1,5 @@
 package eu.slickbot.conver.domain.converter
 
-import eu.slickbot.conver.domain.converter.MeasureUnit.Companion.linear
-
 data class MeasureUnit(
   val id: String,
   val name: String,
