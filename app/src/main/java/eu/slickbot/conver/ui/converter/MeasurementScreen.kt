@@ -1,9 +1,17 @@
 package eu.slickbot.conver.ui.converter
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,11 +41,9 @@ import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material.icons.outlined.UnfoldMore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,10 +55,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -58,12 +68,15 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.formatResult
 import eu.slickbot.conver.ui.components.ConverScaffold
+import eu.slickbot.conver.ui.components.scaffoldBodyPadding
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -101,14 +114,15 @@ fun MeasurementScreenContent(
   val haptic = LocalHapticFeedback.current
   val clipboard = LocalClipboardManager.current
   val result = state.resultString.ifEmpty { "0" }
-  val fromUnit = state.converter.unit(state.fromUnitId)
-  val toUnit = state.converter.unit(state.toUnitId)
+  val accent = state.converter.category.accent
 
-  // Swap button rotation
   var swapTicks by remember { mutableIntStateOf(0) }
   val swapRotation by animateFloatAsState(
     targetValue = swapTicks * 180f,
-    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
+    animationSpec = spring(
+      dampingRatio = Spring.DampingRatioMediumBouncy,
+      stiffness = Spring.StiffnessMediumLow,
+    ),
     label = "swap",
   )
 
@@ -121,94 +135,146 @@ fun MeasurementScreenContent(
     },
     actions = {
       IconButton(onClick = onToggleFavorite) {
-        if (state.isFavorite) Icon(Icons.Outlined.Star, null, tint = MaterialTheme.colorScheme.primary)
+        if (state.isFavorite) Icon(Icons.Outlined.Star, null, tint = accent)
         else Icon(Icons.Outlined.StarOutline, null)
       }
     },
   ) { padding ->
     LazyVerticalGrid(
+      modifier = Modifier.scaffoldBodyPadding(padding),
       columns = GridCells.Fixed(3),
-      contentPadding = PaddingValues(
-        top = padding.calculateTopPadding() + 8.dp,
-        bottom = padding.calculateBottomPadding() + 24.dp,
-        start = 16.dp, end = 16.dp,
-      ),
+      contentPadding = PaddingValues(bottom = 24.dp),
       horizontalArrangement = Arrangement.spacedBy(8.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      // --- Conversion card (full span) ---
+      // --- FROM + Swap + TO ---
       item(span = { GridItemSpan(3) }) {
-        Surface(
-          shape = RoundedCornerShape(28.dp),
-          color = MaterialTheme.colorScheme.surfaceContainerHigh,
-          modifier = Modifier.fillMaxWidth(),
-        ) {
-          Box {
-            Column {
-              // FROM section
-              ConversionHalf(
-                value = state.input,
-                onValueChange = onInputChange,
-                unit = fromUnit,
+        val density = LocalDensity.current
+        val halfButton = with(density) { 22.dp.roundToPx() }
+        var fromHeight by remember { mutableIntStateOf(0) }
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+          Column {
+            // FROM
+            Column(
+              modifier = Modifier
+                .onSizeChanged { fromHeight = it.height }
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 28.dp),
+            ) {
+              UnitPill(
+                unit = state.converter.unit(state.fromUnitId),
                 allUnits = state.converter.units,
                 onUnitChange = onFromChange,
-                editable = true,
-                valueColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
-
-              // Divider
-              HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-                modifier = Modifier.padding(horizontal = 20.dp),
+              Spacer(Modifier.height(8.dp))
+              BasicTextField(
+                value = state.input,
+                onValueChange = onInputChange,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.displaySmall.copy(
+                  color = MaterialTheme.colorScheme.onSurface,
+                  fontWeight = FontWeight.Bold,
+                  letterSpacing = (-1).sp,
+                ),
+                cursorBrush = SolidColor(accent),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                decorationBox = { inner ->
+                  if (state.input.isEmpty()) {
+                    Text(
+                      "0",
+                      style = MaterialTheme.typography.displaySmall,
+                      color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                      fontWeight = FontWeight.Bold,
+                      letterSpacing = (-1).sp,
+                    )
+                  }
+                  inner()
+                },
               )
-
-              // TO section
-              Row(
-                modifier = Modifier.padding(start = 20.dp, end = 8.dp, top = 16.dp, bottom = 20.dp),
-                verticalAlignment = Alignment.Top,
-              ) {
-                ConversionHalf(
-                  value = result,
-                  onValueChange = {},
-                  unit = toUnit,
+            }
+            // TO
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                  Brush.verticalGradient(
+                    colors = listOf(
+                      accent.copy(alpha = 0.15f),
+                      accent.copy(alpha = 0.04f),
+                    ),
+                  ),
+                )
+                .padding(horizontal = 24.dp)
+                .padding(top = 28.dp, bottom = 20.dp),
+            ) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                UnitPill(
+                  unit = state.converter.unit(state.toUnitId),
                   allUnits = state.converter.units,
                   onUnitChange = onToChange,
-                  editable = false,
-                  valueColor = MaterialTheme.colorScheme.primary,
+                  color = accent,
                   modifier = Modifier.weight(1f),
                 )
-                IconButton(onClick = {
-                  clipboard.setText(AnnotatedString(result))
-                  haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                }) {
+                IconButton(
+                  onClick = {
+                    clipboard.setText(AnnotatedString(result))
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  },
+                  modifier = Modifier.size(36.dp),
+                ) {
                   Icon(
                     Icons.Outlined.ContentCopy, "Copy",
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(18.dp),
+                    tint = accent.copy(alpha = 0.5f),
                   )
                 }
               }
+              Spacer(Modifier.height(8.dp))
+              AnimatedContent(
+                targetState = result,
+                transitionSpec = {
+                  (slideInVertically { it / 4 } + fadeIn(tween(200)))
+                    .togetherWith(slideOutVertically { -it / 4 } + fadeOut(tween(100)))
+                },
+                label = "result",
+              ) { shown ->
+                Text(
+                  text = shown,
+                  style = MaterialTheme.typography.displayLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-2).sp,
+                  ),
+                  color = accent,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              }
             }
+          }
 
-            // Floating swap FAB on the divider
-            SmallFloatingActionButton(
-              onClick = {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                swapTicks += 1
-                onSwap()
-              },
-              modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 20.dp)
-                .zIndex(1f),
-              containerColor = MaterialTheme.colorScheme.secondaryContainer,
-              contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
+          // Swap button overlaid at boundary
+          Surface(
+            onClick = {
+              haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+              swapTicks += 1
+              onSwap()
+            },
+            modifier = Modifier
+              .size(44.dp)
+              .align(Alignment.TopCenter)
+              .offset { IntOffset(0, fromHeight - halfButton) }
+              .zIndex(1f),
+            shape = CircleShape,
+            color = accent,
+            contentColor = Color.White,
+          ) {
+            Box(contentAlignment = Alignment.Center) {
               Icon(
                 Icons.Outlined.SwapVert, "Swap",
                 modifier = Modifier
-                  .size(20.dp)
+                  .size(22.dp)
                   .rotate(swapRotation),
               )
             }
@@ -221,8 +287,8 @@ fun MeasurementScreenContent(
         Text(
           "All units",
           style = MaterialTheme.typography.labelLarge,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(top = 8.dp, bottom = 2.dp),
+          color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+          modifier = Modifier.padding(start = 24.dp, top = 12.dp, bottom = 4.dp),
         )
       }
 
@@ -231,7 +297,12 @@ fun MeasurementScreenContent(
         QuickUnitChip(
           unit = unit,
           value = computeValue(state, unit),
+          accent = accent,
           onClick = { onToChange(unit.id) },
+          modifier = Modifier.padding(
+            start = if (state.otherUnits.indexOf(unit) % 3 == 0) 16.dp else 0.dp,
+            end = if (state.otherUnits.indexOf(unit) % 3 == 2) 16.dp else 0.dp,
+          ),
         )
       }
     }
@@ -239,80 +310,43 @@ fun MeasurementScreenContent(
 }
 
 @Composable
-private fun ConversionHalf(
-  value: String,
-  onValueChange: (String) -> Unit,
+private fun UnitPill(
   unit: MeasureUnit,
   allUnits: List<MeasureUnit>,
   onUnitChange: (String) -> Unit,
-  editable: Boolean,
-  valueColor: Color,
+  color: Color,
   modifier: Modifier = Modifier,
 ) {
   var expanded by remember { mutableStateOf(false) }
-
-  Column(modifier = modifier) {
-    // Big number
-    if (editable) {
-      BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        textStyle = MaterialTheme.typography.headlineLarge.copy(
-          color = valueColor,
-          fontWeight = FontWeight.Bold,
-        ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        decorationBox = { inner ->
-          if (value.isEmpty()) {
-            Text(
-              "0",
-              style = MaterialTheme.typography.headlineLarge,
-              color = valueColor.copy(alpha = 0.3f),
-              fontWeight = FontWeight.Bold,
-            )
-          }
-          inner()
-        },
-      )
-    } else {
-      Text(
-        text = value,
-        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-        color = valueColor,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-      )
-    }
-
-    Spacer(Modifier.height(4.dp))
-
-    // Unit pill
-    Row(
-      modifier = Modifier
-        .clip(RoundedCornerShape(8.dp))
-        .clickable { expanded = true }
-        .padding(vertical = 2.dp),
-      verticalAlignment = Alignment.CenterVertically,
+  Box(modifier = modifier) {
+    Surface(
+      onClick = { expanded = true },
+      shape = RoundedCornerShape(20.dp),
+      color = Color.Transparent,
+      border = BorderStroke(1.dp, color.copy(alpha = 0.25f)),
     ) {
-      Text(
-        unit.name,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-      Spacer(Modifier.width(2.dp))
-      Text(
-        "(${unit.symbol})",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-      )
-      Spacer(Modifier.width(4.dp))
-      Icon(
-        Icons.Outlined.UnfoldMore, null,
-        modifier = Modifier.size(16.dp),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-      )
+      Row(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Text(
+          unit.name,
+          style = MaterialTheme.typography.labelLarge,
+          color = color,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+          unit.symbol,
+          style = MaterialTheme.typography.labelLarge,
+          color = color.copy(alpha = 0.5f),
+        )
+        Spacer(Modifier.width(2.dp))
+        Icon(
+          Icons.Outlined.UnfoldMore, null,
+          modifier = Modifier.size(14.dp),
+          tint = color.copy(alpha = 0.4f),
+        )
+      }
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
       allUnits.forEach { u ->
@@ -329,12 +363,16 @@ private fun ConversionHalf(
 private fun QuickUnitChip(
   unit: MeasureUnit,
   value: String,
+  accent: Color,
   onClick: () -> Unit,
+  modifier: Modifier = Modifier,
 ) {
   Surface(
     onClick = onClick,
-    shape = RoundedCornerShape(16.dp),
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    shape = RoundedCornerShape(14.dp),
+    color = accent.copy(alpha = 0.06f),
+    border = BorderStroke(1.dp, accent.copy(alpha = 0.1f)),
+    modifier = modifier,
   ) {
     Column(
       modifier = Modifier
@@ -344,13 +382,14 @@ private fun QuickUnitChip(
       Text(
         text = value.ifEmpty { "—" },
         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+        color = if (value.isNotEmpty()) accent else MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
       )
       Text(
         text = unit.symbol,
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
       )
     }
   }

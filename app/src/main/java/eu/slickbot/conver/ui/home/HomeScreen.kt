@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -119,15 +121,27 @@ fun HomeScreen(
             .fillMaxWidth()
             .heightIn(max = 360.dp)
         ) {
-          state.results.forEach { converter ->
-            ListItem(
-              headlineContent = { Text(converter.name) },
-              supportingContent = { Text(converter.category.displayName) },
-              leadingContent = { Icon(converter.icon, contentDescription = null) },
+          if (state.query.isNotBlank() && state.results.isEmpty()) {
+            Text(
+              text = "No converters found",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
               modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onConverterClick(converter.id) },
+                .padding(horizontal = 24.dp, vertical = 32.dp),
             )
+          } else {
+            state.results.forEach { converter ->
+              ListItem(
+                headlineContent = { Text(converter.name) },
+                supportingContent = { Text(converter.category.displayName) },
+                leadingContent = { Icon(converter.icon, contentDescription = null) },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable { onConverterClick(converter.id) },
+              )
+            }
           }
         }
       },

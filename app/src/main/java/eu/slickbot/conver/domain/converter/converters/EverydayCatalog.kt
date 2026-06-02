@@ -7,6 +7,7 @@ import androidx.compose.material.icons.outlined.DirectionsRun
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Public
+import eu.slickbot.conver.domain.converter.CalculatorConverter
 import eu.slickbot.conver.domain.converter.Category
 import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.MeasurementConverter
@@ -128,7 +129,7 @@ fun paperSizeConverter(): TextConverter = TextConverter(
         match.widthMm, match.heightMm, match.widthIn, match.heightIn,
       )
     },
-    TextConverter.Mode("all", "List all") { _ ->
+    TextConverter.Mode("all", "List all", inputless = true) { _ ->
       paperSizes.joinToString("\n") { p ->
         "%-10s %4d × %4d mm".format(p.name, p.widthMm, p.heightMm)
       }
@@ -169,46 +170,42 @@ fun ovenTempConverter(): MeasurementConverter = MeasurementConverter(
 
 // ---------- BMI calculator ---------------------------------------------------------------------
 
-fun bmiConverter(): TextConverter = TextConverter(
+private fun bmiCategory(bmi: Double): String = when {
+  bmi < 18.5 -> "Underweight"
+  bmi < 25.0 -> "Normal"
+  bmi < 30.0 -> "Overweight"
+  else -> "Obese"
+}
+
+fun bmiConverter(): CalculatorConverter = CalculatorConverter(
   id = "bmi",
   name = "BMI calculator",
   category = Category.Everyday,
   icon = Icons.Outlined.FitnessCenter,
   aliases = listOf("bmi", "body mass", "weight", "health"),
-  placeholder = "Height(cm), Weight(kg) (e.g. 175, 70)",
-  modes = listOf(
-    TextConverter.Mode("metric", "Metric (cm, kg)") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 2) { "Enter: height in cm, weight in kg" }
-      val heightCm = parts[0]
-      val weightKg = parts[1]
-      require(heightCm > 0 && weightKg > 0) { "Values must be positive" }
-      val heightM = heightCm / 100.0
-      val bmi = weightKg / (heightM * heightM)
-      val category = when {
-        bmi < 18.5 -> "Underweight"
-        bmi < 25.0 -> "Normal"
-        bmi < 30.0 -> "Overweight"
-        else -> "Obese"
-      }
-      "BMI: %.1f\nCategory: %s".format(bmi, category)
-    },
-    TextConverter.Mode("imperial", "Imperial (in, lb)") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 2) { "Enter: height in inches, weight in lb" }
-      val heightIn = parts[0]
-      val weightLb = parts[1]
-      require(heightIn > 0 && weightLb > 0) { "Values must be positive" }
-      val bmi = weightLb * 703.0 / (heightIn * heightIn)
-      val category = when {
-        bmi < 18.5 -> "Underweight"
-        bmi < 25.0 -> "Normal"
-        bmi < 30.0 -> "Overweight"
-        else -> "Obese"
-      }
-      "BMI: %.1f\nCategory: %s".format(bmi, category)
-    },
+  fields = listOf(
+    CalculatorConverter.Field("height", "Height"),
+    CalculatorConverter.Field("weight", "Weight"),
   ),
+  modes = listOf(
+    CalculatorConverter.Mode("metric", "Metric (cm, kg)"),
+    CalculatorConverter.Mode("imperial", "Imperial (in, lb)"),
+  ),
+  calculate = { modeId, inputs ->
+    val h = inputs["height"]!!
+    val w = inputs["weight"]!!
+    require(h > 0 && w > 0) { "Values must be positive" }
+    val bmi = if (modeId == "imperial") {
+      w * 703.0 / (h * h)
+    } else {
+      val m = h / 100.0
+      w / (m * m)
+    }
+    listOf(
+      CalculatorConverter.Result("BMI", "%.1f".format(bmi)),
+      CalculatorConverter.Result("Category", bmiCategory(bmi)),
+    )
+  },
 )
 
 // ---------- Running pace -----------------------------------------------------------------------

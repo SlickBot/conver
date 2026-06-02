@@ -12,3 +12,8 @@ gradle/*.properties
 .cxx
 
 /screenshots
+
+# ai
+.claude
+.serena
+.superpowers

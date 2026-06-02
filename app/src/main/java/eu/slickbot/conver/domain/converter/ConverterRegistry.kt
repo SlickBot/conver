@@ -43,7 +43,7 @@ import eu.slickbot.conver.domain.converter.converters.slugConverter
 import eu.slickbot.conver.domain.converter.converters.speedConverter
 import eu.slickbot.conver.domain.converter.converters.taxConverter
 import eu.slickbot.conver.domain.converter.converters.temperatureConverter
-import eu.slickbot.conver.domain.converter.converters.tipConverter
+import eu.slickbot.conver.domain.converter.converters.receiptSplitConverter
 import eu.slickbot.conver.domain.converter.converters.timestampConverter
 import eu.slickbot.conver.domain.converter.converters.torqueConverter
 import eu.slickbot.conver.domain.converter.converters.unicodeConverter
@@ -112,7 +112,7 @@ class ConverterRegistry(val all: List<Converter>) {
         // Money & Finance
         currencyConverter(),
         cryptoConverter(),
-        tipConverter(),
+        receiptSplitConverter(),
         taxConverter(),
         discountConverter(),
         loanConverter(),

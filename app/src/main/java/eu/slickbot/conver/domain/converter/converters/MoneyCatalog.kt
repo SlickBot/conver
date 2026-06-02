@@ -7,10 +7,11 @@ import androidx.compose.material.icons.outlined.Discount
 import androidx.compose.material.icons.outlined.Percent
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Savings
+import eu.slickbot.conver.domain.converter.CalculatorConverter
 import eu.slickbot.conver.domain.converter.Category
 import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.MeasurementConverter
-import eu.slickbot.conver.domain.converter.TextConverter
+import eu.slickbot.conver.domain.converter.StandaloneConverter
 import java.util.Locale
 import kotlin.math.pow
 
@@ -99,138 +100,139 @@ fun cryptoConverter(): MeasurementConverter = MeasurementConverter(
   defaultToId = "USD",
 )
 
-// ---------- Tip calculator ---------------------------------------------------------------------
+// ---------- Receipt split (Splitwise-style — bespoke screen) ----------------------------------
 
 private fun fmt(n: Double): String = String.format(Locale.US, "%.2f", n)
 
-fun tipConverter(): TextConverter = TextConverter(
-  id = "tip",
-  name = "Tip calculator",
+fun receiptSplitConverter(): StandaloneConverter = StandaloneConverter(
+  id = "receipt-split",
+  name = "Receipt split",
   category = Category.Money,
   icon = Icons.Outlined.Receipt,
-  aliases = listOf("tip", "gratuity", "bill"),
-  placeholder = "Bill, Tip%, People (e.g. 85, 15, 2)",
-  modes = listOf(
-    TextConverter.Mode("calc", "Calculate") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.isNotEmpty()) { "Enter: bill, tip%, people" }
-      val bill = parts[0]
-      val tipPct = parts.getOrElse(1) { 15.0 }
-      val people = parts.getOrElse(2) { 1.0 }.coerceAtLeast(1.0)
-      val tip = bill * tipPct / 100.0
-      val total = bill + tip
-      val perPerson = total / people
-      buildString {
-        append("Tip:        ").append(fmt(tip)).append('\n')
-        append("Total:      ").append(fmt(total))
-        if (people > 1) append('\n').append("Per person: ").append(fmt(perPerson))
-      }
-    },
-  ),
+  aliases = listOf("split", "bill", "receipt", "splitwise", "share", "divide"),
+  screenId = "receipt-split",
 )
 
 // ---------- Tax calculator ---------------------------------------------------------------------
 
-fun taxConverter(): TextConverter = TextConverter(
+fun taxConverter(): CalculatorConverter = CalculatorConverter(
   id = "tax",
   name = "Tax calculator",
   category = Category.Money,
   icon = Icons.Outlined.Percent,
   aliases = listOf("tax", "vat", "gst", "sales tax"),
-  placeholder = "Amount, Tax% (e.g. 100, 21)",
-  modes = listOf(
-    TextConverter.Mode("exclusive", "Tax exclusive (add)") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 2) { "Enter: amount, tax%" }
-      val amount = parts[0]
-      val rate = parts[1]
-      val tax = amount * rate / 100.0
-      "Tax:   ${fmt(tax)}\nTotal: ${fmt(amount + tax)}"
-    },
-    TextConverter.Mode("inclusive", "Tax inclusive (extract)") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 2) { "Enter: total, tax%" }
-      val total = parts[0]
-      val rate = parts[1]
-      val net = total / (1 + rate / 100.0)
-      val tax = total - net
-      "Net:  ${fmt(net)}\nTax:  ${fmt(tax)}"
-    },
+  fields = listOf(
+    CalculatorConverter.Field("amount", "Amount", "$"),
+    CalculatorConverter.Field("rate", "Tax rate", "%"),
   ),
+  modes = listOf(
+    CalculatorConverter.Mode("add", "Add tax"),
+    CalculatorConverter.Mode("extract", "Extract tax"),
+  ),
+  calculate = { modeId, inputs ->
+    val amount = inputs["amount"]!!
+    val rate = inputs["rate"]!!
+    if (modeId == "extract") {
+      val net = amount / (1 + rate / 100.0)
+      val tax = amount - net
+      listOf(
+        CalculatorConverter.Result("Net", fmt(net)),
+        CalculatorConverter.Result("Tax", fmt(tax)),
+      )
+    } else {
+      val tax = amount * rate / 100.0
+      listOf(
+        CalculatorConverter.Result("Tax", fmt(tax)),
+        CalculatorConverter.Result("Total", fmt(amount + tax)),
+      )
+    }
+  },
 )
 
 // ---------- Discount calculator ----------------------------------------------------------------
 
-fun discountConverter(): TextConverter = TextConverter(
+fun discountConverter(): CalculatorConverter = CalculatorConverter(
   id = "discount",
   name = "Discount calculator",
   category = Category.Money,
   icon = Icons.Outlined.Discount,
   aliases = listOf("discount", "sale", "off", "savings"),
-  placeholder = "Price, Discount% (e.g. 200, 30)",
-  modes = listOf(
-    TextConverter.Mode("calc", "Calculate") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 2) { "Enter: price, discount%" }
-      val price = parts[0]
-      val pct = parts[1]
-      val savings = price * pct / 100.0
-      "Savings:     ${fmt(savings)}\nFinal price: ${fmt(price - savings)}"
-    },
+  fields = listOf(
+    CalculatorConverter.Field("price", "Price", "$"),
+    CalculatorConverter.Field("pct", "Discount", "%"),
   ),
+  calculate = { _, inputs ->
+    val price = inputs["price"]!!
+    val pct = inputs["pct"]!!
+    val savings = price * pct / 100.0
+    listOf(
+      CalculatorConverter.Result("Savings", fmt(savings)),
+      CalculatorConverter.Result("Final price", fmt(price - savings)),
+    )
+  },
 )
 
 // ---------- Loan calculator -------------------------------------------------------------------
 
-fun loanConverter(): TextConverter = TextConverter(
+fun loanConverter(): CalculatorConverter = CalculatorConverter(
   id = "loan",
   name = "Loan calculator",
   category = Category.Money,
   icon = Icons.Outlined.Calculate,
   aliases = listOf("loan", "mortgage", "interest", "payment"),
-  placeholder = "Principal, Annual rate%, Years (e.g. 250000, 5.5, 30)",
-  modes = listOf(
-    TextConverter.Mode("monthly", "Monthly payment") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 3) { "Enter: principal, rate%, years" }
-      val principal = parts[0]
-      val annualRate = parts[1] / 100.0
-      val years = parts[2]
-      val months = (years * 12).toInt()
-      if (annualRate == 0.0) {
-        val monthly = principal / months
-        "Monthly: ${fmt(monthly)}\nTotal:   ${fmt(principal)}\nInterest: 0.00"
-      } else {
-        val r = annualRate / 12.0
-        val monthly = principal * r * (1 + r).pow(months) / ((1 + r).pow(months) - 1)
-        val total = monthly * months
-        val interest = total - principal
-        "Monthly:  ${fmt(monthly)}\nTotal:    ${fmt(total)}\nInterest: ${fmt(interest)}"
-      }
-    },
+  fields = listOf(
+    CalculatorConverter.Field("principal", "Principal", "$"),
+    CalculatorConverter.Field("rate", "Annual rate", "%"),
+    CalculatorConverter.Field("years", "Term", "years"),
   ),
+  calculate = { _, inputs ->
+    val principal = inputs["principal"]!!
+    val annualRate = inputs["rate"]!! / 100.0
+    val years = inputs["years"]!!
+    val months = (years * 12).toInt()
+    if (annualRate == 0.0) {
+      val monthly = principal / months
+      listOf(
+        CalculatorConverter.Result("Monthly", fmt(monthly)),
+        CalculatorConverter.Result("Total", fmt(principal)),
+        CalculatorConverter.Result("Interest", "0.00"),
+      )
+    } else {
+      val r = annualRate / 12.0
+      val monthly = principal * r * (1 + r).pow(months) / ((1 + r).pow(months) - 1)
+      val total = monthly * months
+      listOf(
+        CalculatorConverter.Result("Monthly", fmt(monthly)),
+        CalculatorConverter.Result("Total", fmt(total)),
+        CalculatorConverter.Result("Interest", fmt(total - principal)),
+      )
+    }
+  },
 )
 
 // ---------- Compound interest ------------------------------------------------------------------
 
-fun compoundInterestConverter(): TextConverter = TextConverter(
+fun compoundInterestConverter(): CalculatorConverter = CalculatorConverter(
   id = "compound-interest",
   name = "Compound interest",
   category = Category.Money,
   icon = Icons.Outlined.Savings,
   aliases = listOf("compound", "invest", "savings", "growth"),
-  placeholder = "Principal, Rate%, Years, Compounds/yr (e.g. 10000, 7, 10, 12)",
-  modes = listOf(
-    TextConverter.Mode("calc", "Calculate") { input ->
-      val parts = input.split(",", ";", " ").mapNotNull { it.trim().toDoubleOrNull() }
-      require(parts.size >= 3) { "Enter: principal, rate%, years [, compounds/yr]" }
-      val p = parts[0]
-      val r = parts[1] / 100.0
-      val t = parts[2]
-      val n = parts.getOrElse(3) { 12.0 }
-      val amount = p * (1 + r / n).pow(n * t)
-      val interest = amount - p
-      "Final amount:  ${fmt(amount)}\nInterest earned: ${fmt(interest)}"
-    },
+  fields = listOf(
+    CalculatorConverter.Field("principal", "Principal", "$"),
+    CalculatorConverter.Field("rate", "Annual rate", "%"),
+    CalculatorConverter.Field("years", "Years"),
+    CalculatorConverter.Field("n", "Compounds / year", default = 12.0),
   ),
+  calculate = { _, inputs ->
+    val p = inputs["principal"]!!
+    val r = inputs["rate"]!! / 100.0
+    val t = inputs["years"]!!
+    val n = inputs["n"]!!
+    val amount = p * (1 + r / n).pow(n * t)
+    listOf(
+      CalculatorConverter.Result("Final amount", fmt(amount)),
+      CalculatorConverter.Result("Interest earned", fmt(amount - p)),
+    )
+  },
 )

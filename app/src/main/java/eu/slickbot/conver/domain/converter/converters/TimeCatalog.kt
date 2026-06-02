@@ -41,7 +41,7 @@ fun timestampConverter(): TextConverter = TextConverter(
     TextConverter.Mode("to-millis", "Date → Millis") { input ->
       Instant.parse(input.trim()).toEpochMilliseconds().toString()
     },
-    TextConverter.Mode("now", "Now") { _ ->
+    TextConverter.Mode("now", "Now", inputless = true) { _ ->
       val millis = java.lang.System.currentTimeMillis()
       val now = Instant.fromEpochMilliseconds(millis)
       buildString {

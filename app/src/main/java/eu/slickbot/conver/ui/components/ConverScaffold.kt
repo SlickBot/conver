@@ -1,7 +1,10 @@
 package eu.slickbot.conver.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,3 +38,16 @@ fun ConverScaffold(
     content = content,
   )
 }
+
+/**
+ * Padding for a screen body: applies the Scaffold [insets] (top app bar + nav bar), marks them
+ * consumed, then adds [Modifier.imePadding]. Consuming first means imePadding only adds the keyboard
+ * height *beyond* the nav bar it already padded - no doubled bottom inset and no gap above the
+ * keyboard. Apply before `verticalScroll` (or as a lazy-list modifier) to shrink the viewport.
+ */
+@Composable
+fun Modifier.scaffoldBodyPadding(insets: PaddingValues): Modifier =
+  this
+    .padding(insets)
+    .consumeWindowInsets(insets)
+    .imePadding()

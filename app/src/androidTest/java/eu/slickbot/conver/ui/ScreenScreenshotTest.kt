@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.test.platform.app.InstrumentationRegistry
 import eu.slickbot.conver.domain.converter.converters.base64Converter
 import eu.slickbot.conver.domain.converter.converters.hashConverter
 import eu.slickbot.conver.domain.converter.converters.lengthConverter
@@ -13,6 +14,11 @@ import eu.slickbot.conver.ui.converter.MeasurementScreenContent
 import eu.slickbot.conver.ui.converter.MeasurementUiState
 import eu.slickbot.conver.ui.converter.TextTransformScreenContent
 import eu.slickbot.conver.ui.converter.TextTransformUiState
+import eu.slickbot.conver.ui.receiptsplit.Person
+import eu.slickbot.conver.ui.receiptsplit.ReceiptItem
+import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitScreenContent
+import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitUiState
+import eu.slickbot.conver.ui.receiptsplit.SplitMode
 import eu.slickbot.conver.ui.theme.ConverTheme
 import eu.slickbot.conver.ui.theme.ThemeMode
 import org.junit.Rule
@@ -31,7 +37,10 @@ class ScreenScreenshotTest {
   @get:Rule
   val rule = createComposeRule()
 
-  private val outDir = File("/sdcard/Download/conver_screenshots").also { it.mkdirs() }
+  private val outDir by lazy {
+    val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+    File(ctx.getExternalFilesDir(null), "screenshots").also { it.mkdirs() }
+  }
 
   @Test
   fun measurement_length() {
@@ -93,6 +102,59 @@ class ScreenScreenshotTest {
     }
     rule.waitForIdle()
     saveScreenshot("text_base64")
+  }
+
+  @Test
+  fun receipt_split_equal() {
+    rule.setContent {
+      ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
+        ReceiptSplitScreenContent(
+          state = ReceiptSplitUiState(
+            splitMode = SplitMode.EQUAL,
+            people = listOf(Person(id = "1", name = "You"), Person(id = "2", name = "Alice"), Person(id = "3", name = "Bob")),
+            totalInput = "96",
+            taxPercent = "10",
+            servicePercent = "",
+          ),
+          onBack = {}, onSplitModeChange = {}, onTotalChange = {}, onTaxChange = {},
+          onServiceChange = {}, onAddPerson = {}, onRemovePerson = {}, onRenamePerson = { _, _ -> },
+          onTogglePersonSelected = {}, onSetShare = { _, _ -> }, onAddItem = {}, onRemoveItem = {},
+          onUpdateItemName = { _, _ -> },
+          onUpdateItemPrice = { _, _ -> }, onToggleItemAssignment = { _, _ -> }, onToggleFavorite = {},
+        )
+      }
+    }
+    rule.waitForIdle()
+    saveScreenshot("receipt_split_equal")
+  }
+
+  @Test
+  fun receipt_split_items() {
+    val people = listOf(Person(id = "1", name = "You"), Person(id = "2", name = "Alice"))
+    rule.setContent {
+      ConverTheme(themeMode = ThemeMode.Dark, dynamicColor = false) {
+        ReceiptSplitScreenContent(
+          state = ReceiptSplitUiState(
+            splitMode = SplitMode.ITEMS,
+            people = people,
+            items = listOf(
+              ReceiptItem(id = "a", name = "Pizza", price = "22", assignedTo = setOf("1", "2")),
+              ReceiptItem(id = "b", name = "Beer", price = "8", assignedTo = setOf("1")),
+              ReceiptItem(id = "c", name = "Salad", price = "14", assignedTo = setOf("2")),
+            ),
+            taxPercent = "10",
+            servicePercent = "",
+          ),
+          onBack = {}, onSplitModeChange = {}, onTotalChange = {}, onTaxChange = {},
+          onServiceChange = {}, onAddPerson = {}, onRemovePerson = {}, onRenamePerson = { _, _ -> },
+          onTogglePersonSelected = {}, onSetShare = { _, _ -> }, onAddItem = {}, onRemoveItem = {},
+          onUpdateItemName = { _, _ -> },
+          onUpdateItemPrice = { _, _ -> }, onToggleItemAssignment = { _, _ -> }, onToggleFavorite = {},
+        )
+      }
+    }
+    rule.waitForIdle()
+    saveScreenshot("receipt_split_items")
   }
 
   private fun saveScreenshot(name: String) {

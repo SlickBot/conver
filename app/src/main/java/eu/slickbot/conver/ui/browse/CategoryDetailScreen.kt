@@ -1,6 +1,5 @@
 package eu.slickbot.conver.ui.browse
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,13 +78,12 @@ fun CategoryDetailScreen(
       ) {
         items(state.converters, key = { it.id }) { converter ->
           Card(
+            onClick = { onConverterClick(converter.id) },
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
               containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ),
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable { onConverterClick(converter.id) },
+            modifier = Modifier.fillMaxWidth(),
           ) {
             ListItem(
               headlineContent = { Text(converter.name) },
