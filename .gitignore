@@ -13,6 +13,9 @@ gradle/*.properties
 
 /screenshots
 
+# certs
+*.jks
+
 # ai
 .claude
 .serena
