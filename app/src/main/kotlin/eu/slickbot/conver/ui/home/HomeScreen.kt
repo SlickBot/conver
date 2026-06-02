@@ -50,7 +50,6 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 fun HomeScreen(
   onConverterClick: (String) -> Unit,
   onCategoryClick: (Category) -> Unit,
-  onBrowseAllClick: () -> Unit,
   viewModel: HomeViewModel = koinViewModel(),
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()

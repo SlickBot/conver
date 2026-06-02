@@ -36,7 +36,6 @@ import eu.slickbot.conver.domain.converter.ConverterRegistry
 import eu.slickbot.conver.domain.converter.MeasurementConverter
 import eu.slickbot.conver.domain.converter.StandaloneConverter
 import eu.slickbot.conver.domain.converter.TextConverter
-import eu.slickbot.conver.ui.browse.BrowseScreen
 import eu.slickbot.conver.ui.browse.CategoryDetailScreen
 import eu.slickbot.conver.ui.converter.CalculatorScreen
 import eu.slickbot.conver.ui.converter.MeasurementScreen
@@ -117,18 +116,6 @@ fun ConverNavHost(
           onCategoryClick = { category ->
             navController.navigate(Destination.CategoryDetail(category.name))
           },
-          onBrowseAllClick = {
-            currentTab = TopLevelDestination.Browse
-            navController.navigate(Destination.Browse) {
-              popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
-              launchSingleTop = true
-            }
-          },
-        )
-      }
-      composable<Destination.Browse> {
-        BrowseScreen(
-          onConverterClick = { id -> navController.navigate(Destination.Converter(id)) },
         )
       }
       composable<Destination.Favorites> {
