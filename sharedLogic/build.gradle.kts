@@ -61,6 +61,8 @@ kotlin {
     }
     wasmJsMain.dependencies {
       implementation(libs.androidx.sqlite.web)
+      implementation(project(":sqliteWasmWorker"))
+      implementation(libs.kotlinx.browser)
     }
     commonTest.dependencies {
       implementation(kotlin("test"))

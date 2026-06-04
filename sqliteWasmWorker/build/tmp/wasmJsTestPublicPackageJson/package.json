@@ -1,0 +1,10 @@
+{
+  "name": "conver-sqliteWasmWorker-test",
+  "version": "0.0.0-unspecified",
+  "main": "conver-sqliteWasmWorker-test.mjs",
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": []
+}
