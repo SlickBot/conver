@@ -46,21 +46,12 @@ import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitScreen
 import eu.slickbot.conver.ui.settings.SettingsScreen
 import org.koin.compose.koinInject
 
-/**
- * Stack model:
- *  - [Home] is always at the bottom and never popped (back from Home = exit app).
- *  - Switching to another tab: [Home, Tab]
- *  - Drilling from any screen: [Home, Tab?, Detail]
- *  - Clicking a tab always pops everything above Home, then pushes the tab root (or stays
- *    on Home if the Home tab was tapped).
- */
 @Composable
 fun ConverNavHost(
   navController: NavHostController = rememberNavController(),
 ) {
   var currentTab by rememberSaveable { mutableStateOf(TopLevelDestination.Home) }
 
-  // Sync tab highlight when back-press lands on a tab root screen.
   val backStackEntry by navController.currentBackStackEntryAsState()
   val dest = backStackEntry?.destination
   val tabFromBackStack = TopLevelDestination.entries.firstOrNull { top ->
@@ -70,9 +61,6 @@ fun ConverNavHost(
     if (tabFromBackStack != null) currentTab = tabFromBackStack
   }
 
-  // Hide the bottom navigation while the keyboard is open, otherwise its reserved strip leaves a
-  // gap between scrollable content and the keyboard. ime > navigation bar means a real keyboard
-  // (at rest WindowInsets.ime reports the nav-bar height).
   val density = LocalDensity.current
   val keyboardOpen = WindowInsets.ime.getBottom(density) > WindowInsets.navigationBars.getBottom(density)
   val navLayoutType = if (keyboardOpen) {
@@ -90,10 +78,8 @@ fun ConverNavHost(
           onClick = {
             currentTab = top
             if (top == TopLevelDestination.Home) {
-              // Pop everything above Home. If already on Home → no-op.
               navController.popBackStack<Destination.Home>(inclusive = false)
             } else {
-              // Pop to Home (keep it), push the target tab root.
               navController.navigate(top.route) {
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
                 launchSingleTop = true
@@ -147,17 +133,16 @@ private fun ConverterDispatch(converterId: String, onBack: () -> Unit) {
     is MeasurementConverter -> MeasurementScreen(converterId = converterId, onBack = onBack)
     is TextConverter -> TextTransformScreen(converterId = converterId, onBack = onBack)
     is CalculatorConverter -> CalculatorScreen(converterId = converterId, onBack = onBack)
-    is StandaloneConverter -> when ((registry[converterId] as StandaloneConverter).screenId) {
-      "receipt-split" -> ReceiptSplitScreen(onBack = onBack)
-      else -> {
-        Box(
-          modifier = Modifier.fillMaxSize().padding(32.dp),
-          contentAlignment = Alignment.Center,
-        ) {
-          Text("Screen not implemented: $converterId", style = MaterialTheme.typography.titleMedium)
-        }
-        LaunchedEffect(converterId) { onBack() }
+    is StandaloneConverter -> if ((registry[converterId] as StandaloneConverter).screenId == "receipt-split") {
+      ReceiptSplitScreen(onBack = onBack)
+    } else {
+      Box(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        contentAlignment = Alignment.Center,
+      ) {
+        Text("Screen not implemented: $converterId", style = MaterialTheme.typography.titleMedium)
       }
+      LaunchedEffect(converterId) { onBack() }
     }
     null -> {
       Box(

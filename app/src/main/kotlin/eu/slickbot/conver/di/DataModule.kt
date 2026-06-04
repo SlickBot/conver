@@ -10,6 +10,8 @@ import org.koin.dsl.module
 val dataModule: Module = module {
   single {
     Room.databaseBuilder(get(), ConverDatabase::class.java, "conver.db")
+      // TODO before next release: remove destructive fallback and write a proper migration.
+      // TODO Also set exportSchema = true.
       .fallbackToDestructiveMigration(dropAllTables = true)
       .build()
   }

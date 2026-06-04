@@ -37,6 +37,10 @@ class CalculatorViewModel(
   private val favoritesRepo: FavoritesRepository,
 ) : ViewModel() {
 
+  companion object {
+    private val ALLOWED = Regex("^-?\\d*(\\.\\d*)?$")
+  }
+
   private val converter: CalculatorConverter =
     (registry[converterId] as? CalculatorConverter)
       ?: error("Unknown or non-calculator converter: $converterId")
@@ -92,9 +96,5 @@ class CalculatorViewModel(
         ),
       )
     }
-  }
-
-  private companion object {
-    val ALLOWED = Regex("^-?\\d*(\\.\\d*)?$")
   }
 }

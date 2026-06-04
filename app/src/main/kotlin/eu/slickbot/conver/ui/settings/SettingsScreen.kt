@@ -2,7 +2,6 @@ package eu.slickbot.conver.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -147,7 +146,6 @@ private fun SwitchRow(
   }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun <T> ChipRow(
   items: List<T>,

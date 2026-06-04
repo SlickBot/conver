@@ -9,13 +9,14 @@ data class MeasureUnit(
 ) {
   companion object {
     /** Value in this unit × factor = value in the base unit. */
-    fun linear(id: String, name: String, symbol: String, factor: Double): MeasureUnit =
-      MeasureUnit(
+    fun linear(id: String, name: String, symbol: String, factor: Double): MeasureUnit {
+      return MeasureUnit(
         id = id,
         name = name,
         symbol = symbol,
         toBase = { it * factor },
         fromBase = { it / factor },
       )
+    }
   }
 }

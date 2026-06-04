@@ -34,20 +34,41 @@ fun shoeSizeConverter(): MeasurementConverter = MeasurementConverter(
   icon = Icons.Outlined.Boy,
   aliases = listOf("shoe", "foot", "size"),
   units = listOf(
-    MeasureUnit("cm", "Centimetres", "cm",
-      toBase = { it }, fromBase = { it }),
-    MeasureUnit("eu", "EU", "EU",
-      toBase = { (it - 2.0) / 1.5 }, fromBase = { it * 1.5 + 2.0 }),
-    MeasureUnit("us-m", "US Men", "US ♂",
-      toBase = { (it + 22.0) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 22.0 }),
-    MeasureUnit("us-w", "US Women", "US ♀",
-      toBase = { (it + 20.5) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 20.5 }),
-    MeasureUnit("uk-m", "UK Men", "UK ♂",
-      toBase = { (it + 23.0) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 23.0 }),
-    MeasureUnit("uk-w", "UK Women", "UK ♀",
-      toBase = { (it + 21.5) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 21.5 }),
-    MeasureUnit("jp", "Japan (cm)", "JP",
-      toBase = { it }, fromBase = { it }),
+    MeasureUnit(
+      id = "cm", name = "Centimetres", symbol = "cm",
+      toBase = { it },
+      fromBase = { it }
+    ),
+    MeasureUnit(
+      id = "eu", name = "EU", symbol = "EU",
+      toBase = { (it - 2.0) / 1.5 },
+      fromBase = { it * 1.5 + 2.0 }
+    ),
+    MeasureUnit(
+      id = "us-m", name = "US Men", symbol = "US ♂",
+      toBase = { (it + 22.0) / 3.0 * 2.54 },
+      fromBase = { it / 2.54 * 3.0 - 22.0 }
+    ),
+    MeasureUnit(
+      id = "us-w", name = "US Women", symbol = "US ♀",
+      toBase = { (it + 20.5) / 3.0 * 2.54 },
+      fromBase = { it / 2.54 * 3.0 - 20.5 }
+    ),
+    MeasureUnit(
+      id = "uk-m", name = "UK Men", symbol = "UK ♂",
+      toBase = { (it + 23.0) / 3.0 * 2.54 },
+      fromBase = { it / 2.54 * 3.0 - 23.0 }
+    ),
+    MeasureUnit(
+      id = "uk-w", name = "UK Women", symbol = "UK ♀",
+      toBase = { (it + 21.5) / 3.0 * 2.54 },
+      fromBase = { it / 2.54 * 3.0 - 21.5 }
+    ),
+    MeasureUnit(
+      id = "jp", name = "Japan (cm)", symbol = "JP",
+      toBase = { it },
+      fromBase = { it }
+    ),
   ),
   defaultFromId = "eu",
   defaultToId = "us-m",
@@ -151,11 +172,13 @@ fun ovenTempConverter(): MeasurementConverter = MeasurementConverter(
   units = listOf(
     MeasureUnit(
       id = "c", name = "Celsius", symbol = "°C",
-      toBase = { it + 273.15 }, fromBase = { it - 273.15 },
+      toBase = { it + 273.15 },
+      fromBase = { it - 273.15 },
     ),
     MeasureUnit(
       id = "f", name = "Fahrenheit", symbol = "°F",
-      toBase = { (it + 459.67) * 5.0 / 9.0 }, fromBase = { it * 9.0 / 5.0 - 459.67 },
+      toBase = { (it + 459.67) * 5.0 / 9.0 },
+      fromBase = { it * 9.0 / 5.0 - 459.67 },
     ),
     MeasureUnit(
       id = "gas", name = "Gas Mark", symbol = "Gas",
@@ -226,16 +249,26 @@ fun runningPaceConverter(): MeasurementConverter = MeasurementConverter(
   icon = Icons.AutoMirrored.Outlined.DirectionsRun,
   aliases = listOf("pace", "running", "jogging", "marathon"),
   units = listOf(
-    MeasureUnit("min-km", "Minutes per km", "min/km",
-      toBase = { it }, fromBase = { it }),
-    MeasureUnit("min-mi", "Minutes per mile", "min/mi",
-      toBase = { it / 1.609344 }, fromBase = { it * 1.609344 }),
-    MeasureUnit("kmh", "Kilometres per hour", "km/h",
+    MeasureUnit(
+      id = "min-km", name = "Minutes per km", symbol = "min/km",
+      toBase = { it },
+      fromBase = { it }
+    ),
+    MeasureUnit(
+      id = "min-mi", name = "Minutes per mile", symbol = "min/mi",
+      toBase = { it / 1.609344 },
+      fromBase = { it * 1.609344 }
+    ),
+    MeasureUnit(
+      id = "kmh", name = "Kilometres per hour", symbol = "km/h",
       toBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / it },
-      fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / it }),
-    MeasureUnit("mph", "Miles per hour", "mph",
+      fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / it }
+    ),
+    MeasureUnit(
+      id = "mph", name = "Miles per hour", symbol = "mph",
       toBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / (it * 1.609344) },
-      fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / (it * 1.609344) }),
+      fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / (it * 1.609344) }
+    ),
   ),
   defaultFromId = "min-km",
   defaultToId = "min-mi",

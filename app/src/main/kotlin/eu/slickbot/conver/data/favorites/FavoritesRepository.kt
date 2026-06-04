@@ -6,10 +6,18 @@ class FavoritesRepository(
   private val favoriteDao: FavoriteDao,
   private val historyDao: HistoryDao,
 ) {
-  fun observeFavorites(): Flow<List<FavoriteEntity>> = favoriteDao.observeAll()
-  fun observeIsFavorite(id: String): Flow<Boolean> = favoriteDao.observeIsFavorite(id)
-  fun observeRecentHistory(limit: Int = 50): Flow<List<HistoryEntity>> =
-    historyDao.observeRecent(limit)
+
+  fun observeFavorites(): Flow<List<FavoriteEntity>> {
+    return favoriteDao.observeAll()
+  }
+
+  fun observeIsFavorite(id: String): Flow<Boolean> {
+    return favoriteDao.observeIsFavorite(id)
+  }
+
+  fun observeRecentHistory(limit: Int = 50): Flow<List<HistoryEntity>> {
+    return historyDao.observeRecent(limit)
+  }
 
   suspend fun toggleFavorite(id: String, currentlyFavorited: Boolean) {
     if (currentlyFavorited) favoriteDao.delete(id)
@@ -19,6 +27,4 @@ class FavoritesRepository(
   suspend fun recordConversion(entry: HistoryEntity) {
     historyDao.insert(entry)
   }
-
-  suspend fun clearHistory() = historyDao.clear()
 }

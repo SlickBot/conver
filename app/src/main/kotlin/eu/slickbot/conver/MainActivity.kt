@@ -26,13 +26,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ConverRoot() {
-  val prefsRepo: UserPreferencesRepository = koinInject()
+  val prefsRepo = koinInject<UserPreferencesRepository>()
   val prefs by prefsRepo.preferences.collectAsStateWithLifecycle(initialValue = null)
 
-  val settings = prefs
   ConverTheme(
-    themeMode = settings?.themeMode ?: ThemeMode.System,
-    dynamicColor = settings?.dynamicColor ?: true,
+    themeMode = prefs?.themeMode ?: ThemeMode.System,
+    dynamicColor = prefs?.dynamicColor ?: true,
   ) {
     ConverNavHost()
   }

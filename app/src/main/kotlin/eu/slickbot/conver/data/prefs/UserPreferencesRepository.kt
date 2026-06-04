@@ -12,7 +12,7 @@ import eu.slickbot.conver.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "conver_prefs")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "conver.prefs")
 
 data class UserPreferences(
   val themeMode: ThemeMode = ThemeMode.System,
@@ -23,12 +23,18 @@ data class UserPreferences(
 
 class UserPreferencesRepository(context: Context) {
 
+  private object Keys {
+    val ThemeMode = stringPreferencesKey("theme_mode")
+    val DynamicColor = booleanPreferencesKey("dynamic_color")
+    val Haptics = booleanPreferencesKey("haptics")
+    val DecimalPrecision = intPreferencesKey("decimal_precision")
+  }
+
   private val store: DataStore<Preferences> = context.applicationContext.dataStore
 
   val preferences: Flow<UserPreferences> = store.data.map { prefs ->
     UserPreferences(
-      themeMode = prefs[Keys.ThemeMode]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
-        ?: ThemeMode.System,
+      themeMode = prefs[Keys.ThemeMode]?.let { ThemeMode.fromName(it) } ?: ThemeMode.System,
       dynamicColor = prefs[Keys.DynamicColor] ?: true,
       haptics = prefs[Keys.Haptics] ?: true,
       decimalPrecision = prefs[Keys.DecimalPrecision] ?: 6,
@@ -49,12 +55,5 @@ class UserPreferencesRepository(context: Context) {
 
   suspend fun setDecimalPrecision(precision: Int) {
     store.edit { it[Keys.DecimalPrecision] = precision.coerceIn(0, 12) }
-  }
-
-  private object Keys {
-    val ThemeMode = stringPreferencesKey("theme_mode")
-    val DynamicColor = booleanPreferencesKey("dynamic_color")
-    val Haptics = booleanPreferencesKey("haptics")
-    val DecimalPrecision = intPreferencesKey("decimal_precision")
   }
 }

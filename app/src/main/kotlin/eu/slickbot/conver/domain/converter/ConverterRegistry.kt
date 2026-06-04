@@ -59,14 +59,8 @@ import eu.slickbot.conver.domain.converter.converters.wordCountConverter
  */
 class ConverterRegistry(val all: List<Converter>) {
 
-  private val byId = all.associateBy { it.id }
-
-  operator fun get(id: String): Converter? = byId[id]
-
-  fun byCategory(category: Category): List<Converter> = all.filter { it.category == category }
-
   companion object {
-    fun default(): ConverterRegistry = ConverterRegistry(
+    fun default() = ConverterRegistry(
       listOf(
         // Measurement
         lengthConverter(),
@@ -128,5 +122,15 @@ class ConverterRegistry(val all: List<Converter>) {
         planetAgeConverter(),
       )
     )
+  }
+
+  private val byId = all.associateBy { it.id }
+
+  operator fun get(id: String): Converter? {
+    return byId[id]
+  }
+
+  fun byCategory(category: Category): List<Converter> {
+    return all.filter { it.category == category }
   }
 }

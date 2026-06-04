@@ -30,8 +30,6 @@ enum class SplitMode(val label: String) {
   ITEMS("By items"),
 }
 
-data class PersonShare(val person: Person, val shares: Int = 1)
-
 data class PersonTotal(val person: Person, val amount: Double)
 
 // ── UI state ─────────────────────────────────────────────────────────────────
@@ -47,6 +45,7 @@ data class ReceiptSplitUiState(
   val excluded: Set<String> = emptySet(), // personIds left out of the split
   val isFavorite: Boolean = false,
 ) {
+
   /** People actually included in the split (deselected ones are left out). */
   val activePeople: List<Person>
     get() = people.filterNot { it.id in excluded }
@@ -126,6 +125,11 @@ data class ReceiptSplitUiState(
 class ReceiptSplitViewModel(
   private val favoritesRepo: FavoritesRepository,
 ) : ViewModel() {
+
+  companion object {
+    private val NUM = Regex("^-?\\d*(\\.\\d*)?$")
+    private fun fmt(n: Double) = String.format(Locale.US, "%.2f", n)
+  }
 
   private val splitMode = MutableStateFlow(SplitMode.EQUAL)
   private val people = MutableStateFlow(
@@ -270,11 +274,6 @@ class ReceiptSplitViewModel(
         ),
       )
     }
-  }
-
-  private companion object {
-    val NUM = Regex("^-?\\d*(\\.\\d*)?$")
-    fun fmt(n: Double): String = String.format(Locale.US, "%.2f", n)
   }
 }
 

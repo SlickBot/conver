@@ -46,8 +46,9 @@ fun ConverScaffold(
  * keyboard. Apply before `verticalScroll` (or as a lazy-list modifier) to shrink the viewport.
  */
 @Composable
-fun Modifier.scaffoldBodyPadding(insets: PaddingValues): Modifier =
-  this
+fun Modifier.scaffoldBodyPadding(insets: PaddingValues): Modifier {
+  return this
     .padding(insets)
     .consumeWindowInsets(insets)
     .imePadding()
+}

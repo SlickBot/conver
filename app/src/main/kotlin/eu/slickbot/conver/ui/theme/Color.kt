@@ -5,9 +5,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-// Seed color for Conver's brand palette (used when dynamic color is unavailable).
-private val Seed = Color(0xFF5B7FFF)
-
 internal val LightColors: ColorScheme = lightColorScheme(
   primary = Color(0xFF2A5BDD),
   onPrimary = Color.White,
@@ -54,7 +51,6 @@ internal val DarkColors: ColorScheme = darkColorScheme(
   outlineVariant = Color(0xFF45464F),
 )
 
-/** AMOLED / true-black dark variant — swaps background & surface to pure black. */
 internal val TrueBlackColors: ColorScheme = DarkColors.copy(
   background = Color.Black,
   surface = Color.Black,
@@ -65,7 +61,6 @@ internal val TrueBlackColors: ColorScheme = DarkColors.copy(
   surfaceContainerHighest = Color(0xFF1D1D21),
 )
 
-/** Category accent tints — used for tiles, headers, and chips in a category. */
 internal object CategoryAccents {
   val Measurement = Color(0xFF5B7FFF)
   val Money = Color(0xFF2BB673)

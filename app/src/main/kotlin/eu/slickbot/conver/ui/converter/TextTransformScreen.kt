@@ -3,7 +3,6 @@ package eu.slickbot.conver.ui.converter
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.slickbot.conver.domain.converter.TextConverter
 import eu.slickbot.conver.ui.components.ConverScaffold
 import eu.slickbot.conver.ui.components.scaffoldBodyPadding
 import eu.slickbot.conver.ui.util.rememberClipboardCopy
@@ -97,7 +97,7 @@ fun TextTransformScreenContent(
     ) {
       // Mode chips
       if (state.converter.modes.size > 1) {
-        ModeChips(state.converter.modes, state.modeId, onModeChange, accent)
+        ModeChips(state.converter.modes, state.modeId, onModeChange)
       }
 
       // Input section - hidden for modes whose output doesn't depend on input
@@ -198,13 +198,11 @@ fun TextTransformScreenContent(
   }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ModeChips(
-  modes: List<eu.slickbot.conver.domain.converter.TextConverter.Mode>,
+  modes: List<TextConverter.Mode>,
   selectedId: String,
   onSelect: (String) -> Unit,
-  accent: androidx.compose.ui.graphics.Color,
 ) {
   FlowRow(
     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),

@@ -62,8 +62,6 @@ fun currencyConverter(): MeasurementConverter = MeasurementConverter(
   aliases = listOf("dollar", "euro", "pound", "yen", "exchange", "forex", "money"),
   units = currencyRates.map { (code, pair) ->
     val (name, ratePerUsd) = pair
-    // toBase: convert from this currency to USD (divide by rate)
-    // fromBase: convert from USD to this currency (multiply by rate)
     MeasureUnit.linear(code, "$name ($code)", code, 1.0 / ratePerUsd)
   },
   defaultFromId = "USD",

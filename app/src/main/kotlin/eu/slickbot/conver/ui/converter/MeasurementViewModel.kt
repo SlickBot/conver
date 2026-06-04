@@ -33,6 +33,10 @@ class MeasurementViewModel(
   private val favoritesRepo: FavoritesRepository,
 ) : ViewModel() {
 
+  companion object {
+    private val ALLOWED = Regex("^-?\\d*(\\.\\d*)?$")
+  }
+
   private val converter: MeasurementConverter =
     (registry[converterId] as? MeasurementConverter)
       ?: error("Unknown or non-measurement converter: $converterId")
@@ -94,9 +98,5 @@ class MeasurementViewModel(
         ),
       )
     }
-  }
-
-  private companion object {
-    val ALLOWED = Regex("^-?\\d*(\\.\\d*)?$")
   }
 }

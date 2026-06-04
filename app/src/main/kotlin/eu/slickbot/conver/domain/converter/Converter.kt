@@ -10,8 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 /**
  * A converter entry in the catalog. Two kinds today:
  *  - [MeasurementConverter] — numeric input with unit pickers (rendered by `MeasurementScreen`).
- *  - [TextConverter] — text-in / text-out transforms with optional modes (rendered by
- *    `TextTransformScreen`).
+ *  - [TextConverter] — text-in / text-out transforms with optional modes (rendered by `TextTransformScreen`).
  *
  * Adding a new converter is (usually) one entry in [ConverterRegistry.default]; no new screen.
  */
@@ -54,9 +53,6 @@ data class MeasurementConverter(
  * Text-in / text-out transformer. A converter with multiple [modes] renders FilterChips to switch
  * between them (e.g. Base64 encode vs decode; MD5 vs SHA-256; snake_case vs camelCase).
  * A single-mode converter hides the chip row.
- *
- * The [transform] is expected to be pure and fast; failures should surface as the error message
- * (wrapped by [run]) rather than throwing.
  */
 data class TextConverter(
   override val id: String,
@@ -94,8 +90,8 @@ data class TextConverter(
 }
 
 /**
- * Bespoke screen that doesn't fit any template. The [screenId] tells [ConverterDispatch]
- * which composable to render. Used for complex tools like receipt splitting, color picker, etc.
+ * Bespoke screen that doesn't fit any template.
+ * Used for complex tools like receipt splitting, color picker, etc.
  */
 data class StandaloneConverter(
   override val id: String,
