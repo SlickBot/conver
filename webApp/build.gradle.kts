@@ -22,6 +22,7 @@ kotlin {
       implementation(libs.koin.core)
       implementation(libs.jb.compose.runtime)
       implementation(libs.jb.compose.ui)
+      implementation(libs.jb.navigation.compose)  // for bindToBrowserNavigation
     }
   }
 }

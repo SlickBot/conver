@@ -49,7 +49,10 @@ import org.koin.compose.koinInject
 @Composable
 fun ConverNavHost(
   navController: NavHostController = rememberNavController(),
+  onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
+  LaunchedEffect(navController) { onNavHostReady(navController) }
+
   var currentTab by rememberSaveable { mutableStateOf(TopLevelDestination.Home) }
 
   val backStackEntry by navController.currentBackStackEntryAsState()
