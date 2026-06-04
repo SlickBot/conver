@@ -1,0 +1,47 @@
+# XcodeGen spec for the Conver iOS app.
+# On a Mac:  brew install xcodegen  &&  (cd iosApp && xcodegen generate)
+# then open iosApp.xcodeproj. The generated .xcodeproj is gitignored; this file is the source of truth.
+name: iosApp
+options:
+  bundleIdPrefix: eu.slickbot.conver
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    # Xcode 15+ sandboxes run-script phases; the Gradle framework build writes outside that sandbox.
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: eu.slickbot.conver
+        PRODUCT_NAME: Conver
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: "1.0"
+        SWIFT_VERSION: "5.0"
+        # Let Xcode synthesize Info.plist from these keys (no hand-written plist).
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # The ConverApp framework is built + placed by the Gradle build phase below.
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -framework
+          - ConverApp
+    preBuildScripts:
+      - name: Compile Kotlin Framework (Gradle)
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :iosApp:embedAndSignAppleFrameworkForXcode

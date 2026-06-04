@@ -1,1 +1,9 @@
 /build
+
+# XcodeGen regenerates this from project.yml — never commit it.
+*.xcodeproj/
+
+# Xcode build output / local state
+DerivedData/
+xcuserdata/
+*.xcworkspace/
