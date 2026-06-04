@@ -5,7 +5,7 @@
 # Conver
 
 A small converter for Android - around 60 converters
-across measurement, money, time, numbers, developer/text, color and everyday
+across measurement, money, time, numbers, developer/text, color, and everyday
 categories, in one app that works entirely offline.
 
 </div>
@@ -51,8 +51,7 @@ live source is a later upgrade.
 
 Kotlin · Jetpack Compose (Material 3, Navigation)
 · Koin for DI · Room + DataStore · kotlinx-serialization
-& kotlinx-datetime · AGP 9. `minSdk` 26, `targetSdk` 37. Single `:app` module,
-split by layer (`domain` / `data` / `ui`).
+& kotlinx-datetime · AGP 9. `minSdk` 26, `targetSdk` 36.
 
 ## Building
 
@@ -61,7 +60,7 @@ handles the rest.
 
 ```bash
 # install the debug build on a connected device/emulator
-./gradlew :app:installDebug
+./gradlew :androidApp:installDebug
 ```
 
 The debug app installs as **Conver🐛** with a `.debug` suffix, so it sits happily
@@ -92,5 +91,5 @@ export KEY_PASSWORD=...
 ## Disclaimer
 
 Conver is an unofficial, non-commercial hobby project provided as-is. Conversions
-are best-effort and the bundled currency/crypto rates are static - double-check
+are best-effort, and the bundled currency/crypto rates are static - double-check
 anything that actually matters against an authoritative source.
