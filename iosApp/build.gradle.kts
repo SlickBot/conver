@@ -15,6 +15,9 @@ kotlin {
   sourceSets {
     iosMain.dependencies {
       api(project(":sharedUI"))
+      implementation(project(":sharedLogic"))
+      implementation(project.dependencies.platform(libs.koin.bom))
+      implementation(libs.koin.core)
     }
   }
 }

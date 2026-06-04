@@ -1,12 +1,14 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("com.android.kotlin.multiplatform.library")
+  alias(libs.plugins.android.kotlin.multiplatform.library)
   alias(libs.plugins.ksp)
   alias(libs.plugins.room)
+  alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
-  // Room KMP generates expect/actual RoomDatabaseConstructor objects; suppress the Beta warning.
   compilerOptions {
     freeCompilerArgs.add("-Xexpect-actual-classes")
   }
@@ -20,7 +22,7 @@ kotlin {
     compilations.all { compileTaskProvider.configure { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) } } }
   }
 
-  @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+  @OptIn(ExperimentalWasmDsl::class)
   wasmJs {
     browser()
   }
@@ -34,12 +36,20 @@ kotlin {
     commonMain.dependencies {
       implementation(project.dependencies.platform(libs.kotlincrypto.hash.bom))
       implementation(libs.kotlincrypto.hash.md5)
+      implementation(libs.kotlincrypto.hash.sha1)
       implementation(libs.kotlincrypto.hash.sha2)
       implementation(libs.androidx.room3.runtime)
       implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.kotlinx.serialization.json)
+      implementation(libs.kotlinx.datetime)
+      implementation(libs.androidx.datastore.preferences.core)
+      implementation(libs.jb.lifecycle.viewmodel)
+      implementation(project.dependencies.platform(libs.koin.bom))
+      implementation(libs.koin.core)
+      implementation(libs.koin.compose.viewmodel)
     }
-    // sqlite-bundled (JNI/native bundled driver) has no wasmJs variant; the wasm
-    // target uses sqlite-web instead. Keep it out of commonMain.
+    // sqlite-bundled (JNI/native-bundled driver) has no wasmJs variant; the wasm
+    // target uses sqlite-web instead. Keep it out of the commonMain.
     jvmMain.dependencies {
       implementation(libs.androidx.sqlite.bundled)
     }
@@ -49,13 +59,13 @@ kotlin {
     iosMain.dependencies {
       implementation(libs.androidx.sqlite.bundled)
     }
-    val wasmJsMain by getting {
-      dependencies {
-        implementation(libs.androidx.sqlite.web)
-      }
+    wasmJsMain.dependencies {
+      implementation(libs.androidx.sqlite.web)
     }
     commonTest.dependencies {
       implementation(kotlin("test"))
+      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.turbine)
     }
   }
 }

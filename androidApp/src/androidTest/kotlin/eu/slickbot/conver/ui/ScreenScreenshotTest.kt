@@ -20,7 +20,7 @@ import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitScreenContent
 import eu.slickbot.conver.ui.receiptsplit.ReceiptSplitUiState
 import eu.slickbot.conver.ui.receiptsplit.SplitMode
 import eu.slickbot.conver.ui.theme.ConverTheme
-import eu.slickbot.conver.ui.theme.ThemeMode
+import eu.slickbot.conver.model.ThemeMode
 import org.junit.Rule
 import org.junit.Test
 import java.io.File

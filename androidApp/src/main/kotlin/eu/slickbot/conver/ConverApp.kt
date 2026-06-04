@@ -1,20 +1,21 @@
 package eu.slickbot.conver
 
 import android.app.Application
-import eu.slickbot.conver.di.appModule
+import eu.slickbot.conver.data.PlatformDataContext
+import eu.slickbot.conver.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.dsl.module
 
 class ConverApp : Application() {
 
   override fun onCreate() {
     super.onCreate()
-    startKoin {
+    initKoin {
       androidLogger(Level.INFO)
       androidContext(this@ConverApp)
-      modules(appModule)
+      modules(module { single { PlatformDataContext(this@ConverApp) } })
     }
   }
 }

@@ -1,8 +1,12 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("com.android.kotlin.multiplatform.library")
+  alias(libs.plugins.android.kotlin.multiplatform.library)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -12,10 +16,14 @@ kotlin {
     namespace = "eu.slickbot.conver.sharedui"
     compileSdk = 36
     minSdk = 26
-    compilations.all { compileTaskProvider.configure { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) } } }
+    compilations.all {
+      compileTaskProvider.configure {
+        compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }
+      }
+    }
   }
 
-  @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+  @OptIn(ExperimentalWasmDsl::class)
   wasmJs {
     browser()
   }
@@ -26,10 +34,20 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(project(":sharedLogic"))
-      implementation(compose.runtime)
-      implementation(compose.foundation)
-      implementation(compose.material3)
-      implementation(compose.components.resources)
+      implementation(libs.jb.compose.runtime)
+      implementation(libs.jb.compose.foundation)
+      implementation(libs.jb.compose.material3)
+      implementation(libs.jb.compose.material.icons.extended)
+      implementation(libs.jb.compose.components.resources)
+      implementation(libs.jb.compose.ui)
+      implementation(libs.jb.compose.adaptive)
+      implementation(libs.jb.compose.adaptive.navigation.suite)
+      implementation(libs.jb.navigation.compose)
+      implementation(libs.jb.lifecycle.viewmodel.compose)
+      implementation(libs.jb.lifecycle.runtime.compose)
+      implementation(project.dependencies.platform(libs.koin.bom))
+      implementation(libs.koin.compose)
+      implementation(libs.koin.compose.viewmodel)
     }
   }
 }

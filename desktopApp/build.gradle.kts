@@ -9,7 +9,11 @@ kotlin {
   sourceSets {
     jvmMain.dependencies {
       implementation(project(":sharedUI"))
+      implementation(project(":sharedLogic"))
+      implementation(project.dependencies.platform(libs.koin.bom))
+      implementation(libs.koin.core)
       implementation(compose.desktop.currentOs)
+      implementation(libs.kotlinx.coroutines.swing)
     }
   }
 }
