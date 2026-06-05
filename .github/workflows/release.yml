@@ -78,8 +78,8 @@ jobs:
 
       - name: Rename APKs & R8 mapping
         run: |
-          mv androidApp/build/outputs/apk/debug/app-debug.apk androidApp/build/outputs/apk/debug/conver-${{ github.ref_name }}-debug.apk
-          mv androidApp/build/outputs/apk/release/app-release.apk androidApp/build/outputs/apk/release/conver-${{ github.ref_name }}-release.apk
+          mv androidApp/build/outputs/apk/debug/androidApp-debug.apk androidApp/build/outputs/apk/debug/conver-${{ github.ref_name }}-debug.apk
+          mv androidApp/build/outputs/apk/release/androidApp-release.apk androidApp/build/outputs/apk/release/conver-${{ github.ref_name }}-release.apk
           gzip -c androidApp/build/outputs/mapping/release/mapping.txt > "androidApp/build/outputs/mapping/release/conver-${{ github.ref_name }}-release-mapping.txt.gz"
 
       # Creates the release object (with generated notes); the desktop & web jobs
