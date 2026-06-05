@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.android.kotlin.multiplatform.library)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.detekt)
   alias(libs.plugins.kotlin.serialization)
 }
 
@@ -15,7 +16,7 @@ kotlin {
   android {
     namespace = "eu.slickbot.conver.sharedui"
     compileSdk = 36
-    minSdk = 26
+    minSdk = 23
     compilations.all {
       compileTaskProvider.configure {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }

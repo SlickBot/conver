@@ -27,4 +27,26 @@ class ConverterSearchTest {
   @Test fun `unknown query returns empty list`() {
     assertTrue(search.query("zzzzz").isEmpty())
   }
+
+  @Test fun `whitespace-padded query is trimmed before matching`() {
+    val results = search.query("  length  ")
+    assertEquals("length", results.firstOrNull()?.id)
+  }
+
+  @Test fun `query is case-insensitive`() {
+    val upper = search.query("LENGTH").map { it.id }
+    val lower = search.query("length").map { it.id }
+    assertEquals(lower, upper)
+  }
+
+  @Test fun `limit caps the number of results`() {
+    val results = search.query("e", limit = 3)
+    assertEquals(3, results.size)
+  }
+
+  @Test fun `exact alias match outranks prefix alias match`() {
+    // "url-encode" has alias "url" (exact, score 1000); "slug" has alias "url slug" (prefix, score ~496).
+    val ids = search.query("url").map { it.id }
+    assertTrue(ids.indexOf("url-encode") < ids.indexOf("slug"))
+  }
 }

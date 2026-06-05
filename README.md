@@ -4,9 +4,9 @@
 
 # Conver
 
-A small converter for Android - around 60 converters
-across measurement, money, time, numbers, developer/text, color, and everyday
-categories, in one app that works entirely offline.
+A cross-platform converter app - around 60 converters across measurement, money,
+time, numbers, developer/text, color, and everyday categories, in one app that
+works entirely offline on Android, Desktop, and Web.
 
 </div>
 
@@ -20,6 +20,12 @@ for each one.
 
 Everything is computed on-device. There's no backend and no tracking; the
 catalog of converters is built into the app.
+
+## Platforms
+
+- **Android** - APK, minSdk 23
+- **Desktop** - native installers for Windows (.msi), macOS (.dmg), and Linux (.deb)
+- **Web** - runs in the browser via Kotlin/Wasm, hosted on GitHub Pages (iOS support is in progress)
 
 ## Screenshots
 
@@ -49,9 +55,9 @@ live source is a later upgrade.
 
 ### Stack
 
-Kotlin · Jetpack Compose (Material 3, Navigation)
+Kotlin Multiplatform · Compose Multiplatform (Material 3)
 · Koin for DI · Room + DataStore · kotlinx-serialization
-& kotlinx-datetime · AGP 9. `minSdk` 26, `targetSdk` 36.
+& kotlinx-datetime · AGP 9. `minSdk` 23 (Android), `targetSdk` 36.
 
 ## Building
 
@@ -61,9 +67,15 @@ handles the rest.
 ```bash
 # install the debug build on a connected device/emulator
 ./gradlew :androidApp:installDebug
+
+# run the desktop app
+./gradlew :desktopApp:run
+
+# run the web app in a local browser
+./gradlew :webApp:wasmJsBrowserDevelopmentRun
 ```
 
-The debug app installs as **Conver🐛** with a `.debug` suffix, so it sits happily
+The debug Android app installs as **Conver🐛** with a `.debug` suffix, so it sits happily
 next to a release install.
 
 ### Tests
@@ -74,10 +86,13 @@ next to a release install.
 
 ### Release builds
 
-The release build is signed; the signing config is read from environment
-variables to keep secrets out of the repo and play nicely with CI. Pushing a
-`v*` tag triggers the release workflow, which builds and publishes signed APKs.
-See [`RELEASE.md`](RELEASE.md) for keystore creation and the GitHub secrets.
+Pushing a `v*` tag triggers the release workflow, which:
+- builds and publishes signed Android APKs,
+- builds native desktop installers on Windows, macOS, and Linux and attaches them to the GitHub Release,
+- builds the Wasm web bundle, attaches it as a zip, and deploys it to GitHub Pages.
+
+The Android signing config is read from environment variables to keep secrets out of the repo.
+See [`RELEASE.md`](RELEASE.md) for keystore creation, GitHub secrets, and Pages setup.
 
 ```bash
 export KEYSTORE_FILE=/path/to/release-key.jks

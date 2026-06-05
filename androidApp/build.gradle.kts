@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.compose.multiplatform)
+  alias(libs.plugins.detekt)
 }
 
 android {
@@ -10,7 +11,7 @@ android {
   defaultConfig {
     applicationId = namespace
 
-    minSdk = 26
+    minSdk = 23
     targetSdk = 36
     compileSdk = 36
 

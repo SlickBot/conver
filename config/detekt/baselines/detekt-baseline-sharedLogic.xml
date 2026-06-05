@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>AnnotationOnSeparateLine:AppModuleSmokeTest.kt$AppModuleSmokeTest$@OptIn(KoinExperimentalAPI::class) @Test</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( "Mercury" to 0.2408467, "Venus" to 0.61519726, "Earth" to 1.0, "Mars" to 1.8808158, "Jupiter" to 11.862615, "Saturn" to 29.447498, "Uranus" to 84.016846, "Neptune" to 164.79132, )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "c", name = "Celsius", symbol = "°C", toBase = { it + 273.15 }, fromBase = { it - 273.15 }, )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "cm", name = "Centimetres", symbol = "cm", toBase = { it }, fromBase = { it } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "eu", name = "EU", symbol = "EU", toBase = { (it - 2.0) / 1.5 }, fromBase = { it * 1.5 + 2.0 } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "f", name = "Fahrenheit", symbol = "°F", toBase = { (it + 459.67) * 5.0 / 9.0 }, fromBase = { it * 9.0 / 5.0 - 459.67 }, )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "gas", name = "Gas Mark", symbol = "Gas", toBase = { val f = it * 25.0 + 250.0; (f + 459.67) * 5.0 / 9.0 }, fromBase = { val f = it * 9.0 / 5.0 - 459.67; (f - 250.0) / 25.0 }, )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "jp", name = "Japan (cm)", symbol = "JP", toBase = { it }, fromBase = { it } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "kmh", name = "Kilometres per hour", symbol = "km/h", toBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / it }, fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / it } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "min-km", name = "Minutes per km", symbol = "min/km", toBase = { it }, fromBase = { it } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "min-mi", name = "Minutes per mile", symbol = "min/mi", toBase = { it / 1.609344 }, fromBase = { it * 1.609344 } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "mph", name = "Miles per hour", symbol = "mph", toBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / (it * 1.609344) }, fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 60.0 / (it * 1.609344) } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "uk-m", name = "UK Men", symbol = "UK ♂", toBase = { (it + 23.0) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 23.0 } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "uk-w", name = "UK Women", symbol = "UK ♀", toBase = { (it + 21.5) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 21.5 } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "us-m", name = "US Men", symbol = "US ♂", toBase = { (it + 22.0) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 22.0 } )</ID>
+    <ID>ArgumentListWrapping:EverydayCatalog.kt$( id = "us-w", name = "US Women", symbol = "US ♀", toBase = { (it + 20.5) / 3.0 * 2.54 }, fromBase = { it / 2.54 * 3.0 - 20.5 } )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "c", name = "Celsius", symbol = "°C", toBase = { it + 273.15 }, fromBase = { it - 273.15 }, )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "f", name = "Fahrenheit", symbol = "°F", toBase = { (it + 459.67) * 5.0 / 9.0 }, fromBase = { it * 9.0 / 5.0 - 459.67 }, )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "k", name = "Kelvin", symbol = "K", toBase = { it }, fromBase = { it }, )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "kmpl", name = "Kilometre per litre", symbol = "km/L", toBase = { it }, fromBase = { it }, )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "lp100km", name = "Litre per 100 km", symbol = "L/100km", toBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 100.0 / it }, fromBase = { if (it == 0.0) Double.POSITIVE_INFINITY else 100.0 / it }, )</ID>
+    <ID>ArgumentListWrapping:MeasurementCatalog.kt$( id = "r", name = "Rankine", symbol = "°R", toBase = { it * 5.0 / 9.0 }, fromBase = { it * 9.0 / 5.0 }, )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:ReceiptSplitViewModel.kt$ReceiptSplitViewModel$(tax, service, itms, shr, exc)</ID>
+    <ID>Filename:Unit.kt$eu.slickbot.conver.domain.converter.Unit.kt</ID>
+    <ID>ImportOrdering:AppDataFactories.wasmJs.kt$import androidx.datastore.core.DataStore import androidx.datastore.preferences.core.PreferenceDataStoreFactory import androidx.datastore.preferences.core.Preferences import androidx.datastore.preferences.core.PreferencesSerializer import androidx.datastore.core.okio.WebLocalStorage import androidx.room3.Room import androidx.room3.RoomDatabase import androidx.sqlite.driver.web.WebWorkerSQLiteDriver import eu.slickbot.conver.data.favorites.ConverDatabase import kotlinx.coroutines.Dispatchers import org.w3c.dom.Worker</ID>
+    <ID>ImportOrdering:DeveloperCatalog.kt$import eu.slickbot.conver.domain.converter.Category import eu.slickbot.conver.domain.converter.ConverterIcon import eu.slickbot.conver.domain.converter.TextConverter import eu.slickbot.conver.domain.converter.hex2Lower import kotlinx.serialization.json.Json import kotlinx.serialization.json.JsonElement import kotlin.io.encoding.Base64 import kotlin.io.encoding.ExperimentalEncodingApi import kotlin.uuid.ExperimentalUuidApi import kotlin.uuid.Uuid import org.kotlincrypto.hash.md.MD5 import org.kotlincrypto.hash.sha1.SHA1 import org.kotlincrypto.hash.sha2.SHA256 import org.kotlincrypto.hash.sha2.SHA512</ID>
+    <ID>ImportOrdering:FavoritesRepository.kt$import kotlin.time.Clock import kotlinx.coroutines.flow.Flow</ID>
+    <ID>MatchingDeclarationName:AppDataFactories.android.kt$PlatformDataContext</ID>
+    <ID>MatchingDeclarationName:AppDataFactories.ios.kt$PlatformDataContext</ID>
+    <ID>MatchingDeclarationName:AppDataFactories.jvm.kt$PlatformDataContext</ID>
+    <ID>MatchingDeclarationName:AppDataFactories.kt$PlatformDataContext</ID>
+    <ID>MatchingDeclarationName:AppDataFactories.wasmJs.kt$PlatformDataContext</ID>
+    <ID>MatchingDeclarationName:Unit.kt$MeasureUnit</ID>
+    <ID>MultiLineIfElse:FavoritesRepository.kt$FavoritesRepository$favoriteDao.delete(id)</ID>
+    <ID>MultiLineIfElse:FavoritesRepository.kt$FavoritesRepository$favoriteDao.upsert(FavoriteEntity(id, Clock.System.now().toEpochMilliseconds()))</ID>
+    <ID>MultiLineIfElse:Formatting.kt$rounded + "." + "0".repeat(digits)</ID>
+    <ID>MultiLineIfElse:ReceiptSplitViewModel.kt$ReceiptSplitViewModel$item</ID>
+    <ID>MultiLineIfElse:TextCatalog.kt$w.lowercase()</ID>
+    <ID>MultiLineIfElse:TextCatalog.kt$w.lowercase().replaceFirstChar { c -&gt; c.titlecase() }</ID>
+    <ID>NoMultipleSpaces:AppDataFactories.wasmJs.kt$ </ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun half_up_rounding()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun large_magnitude_no_scientific()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun long_decimals_rounded()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun nan_and_infinity()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun negative_values()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun short_decimals_keep_digits()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun tiny_magnitude_no_scientific()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FormatTest.kt$FormatTest$@Test fun trailing_dot_stripped()</ID>
+    <ID>TooManyFunctions:MeasurementCatalog.kt$eu.slickbot.conver.domain.converter.converters.MeasurementCatalog.kt</ID>
+    <ID>TooManyFunctions:NumbersCatalog.kt$eu.slickbot.conver.domain.converter.converters.NumbersCatalog.kt</ID>
+    <ID>TooManyFunctions:ReceiptSplitViewModel.kt$ReceiptSplitViewModel : ViewModel</ID>
+    <ID>UnusedParameter:TextNormalize.wasmJs.kt$input: String</ID>
+    <ID>Wrapping:DeveloperCatalog.kt$;</ID>
+    <ID>Wrapping:EverydayCatalog.kt$;</ID>
+    <ID>Wrapping:Format.kt$;</ID>
+    <ID>Wrapping:NumbersCatalog.kt$;</ID>
+    <ID>Wrapping:UrlCodec.kt$;</ID>
+  </CurrentIssues>
+</SmellBaseline>

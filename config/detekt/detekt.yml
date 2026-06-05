@@ -1,0 +1,23 @@
+build:
+  maxIssues: 0
+formatting:
+  active: true
+  android: false
+  autoCorrect: false
+  Indentation:
+    indentSize: 2
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'

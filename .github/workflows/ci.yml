@@ -14,10 +14,10 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test:
-    name: Unit tests
+  verify:
+    name: Lint, test & build all targets
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,14 +25,23 @@ jobs:
       - name: Set up build environment
         uses: ./.github/actions/setup
 
-      - name: Run tests
-        run: ./gradlew test --stacktrace
+      - name: Set up Chrome (for wasm tests)
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Static analysis
+        run: ./gradlew detekt --stacktrace
+
+      - name: Unit tests (JVM, Android, wasm)
+        run: ./gradlew :sharedLogic:jvmTest :androidApp:testDebugUnitTest :sharedLogic:wasmJsTest --stacktrace
+
+      - name: Build all shipping targets
+        run: ./gradlew :androidApp:assembleDebug :desktopApp:jvmJar :webApp:wasmJsBrowserDistribution --stacktrace
 
       - name: Upload test reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: androidApp/build/reports/tests/
+          path: '**/build/reports/tests/'
           if-no-files-found: ignore
           retention-days: 14

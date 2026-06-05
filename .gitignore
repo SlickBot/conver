@@ -6,7 +6,6 @@
 local.properties
 gradle/*.properties
 .run
-kotlin-js-store
 
 .DS_Store
 /captures

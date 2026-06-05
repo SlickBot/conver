@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.ksp)
   alias(libs.plugins.room)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.detekt)
 }
 
 kotlin {
@@ -18,7 +19,7 @@ kotlin {
   android {
     namespace = "eu.slickbot.conver.shared"
     compileSdk = 36
-    minSdk = 26
+    minSdk = 23
     compilations.all { compileTaskProvider.configure { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) } } }
   }
 
@@ -68,6 +69,10 @@ kotlin {
       implementation(kotlin("test"))
       implementation(libs.kotlinx.coroutines.test)
       implementation(libs.turbine)
+    }
+    jvmTest.dependencies {
+      implementation(project.dependencies.platform(libs.koin.bom))
+      implementation(libs.koin.test)
     }
   }
 }
