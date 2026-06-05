@@ -47,7 +47,7 @@ kotlin {
       implementation(libs.jb.lifecycle.viewmodel)
       implementation(project.dependencies.platform(libs.koin.bom))
       implementation(libs.koin.core)
-      implementation(libs.koin.compose.viewmodel)
+      implementation(libs.koin.core.viewmodel)
     }
     // sqlite-bundled (JNI/native-bundled driver) has no wasmJs variant; the wasm
     // target uses sqlite-web instead. Keep it out of the commonMain.
