@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.domain.converter.Category
+import eu.slickbot.conver.domain.converter.Converter
 import eu.slickbot.conver.ui.components.AccentChip
 import eu.slickbot.conver.ui.components.CategoryTile
 import eu.slickbot.conver.ui.icons.imageVector
@@ -116,31 +119,34 @@ fun HomeScreen(
       shadowElevation = SearchBarDefaults.ShadowElevation,
       windowInsets = SearchBarDefaults.windowInsets,
       content = {
+        // When the query is blank the search panel shows recents + favorites instead of
+        // nothing, so a restored/expanded-but-empty search never renders a blank screen.
+        val suggestions = (state.recents + state.favorites).distinctBy { it.id }
         Column(
           modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = 360.dp)
+            .verticalScroll(rememberScrollState())
         ) {
-          if (state.query.isNotBlank() && state.results.isEmpty()) {
-            Text(
-              text = "No converters found",
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            )
-          } else {
-            state.results.forEach { converter ->
-              ListItem(
-                headlineContent = { Text(converter.name) },
-                supportingContent = { Text(converter.category.displayName) },
-                leadingContent = { Icon(converter.icon.imageVector(), contentDescription = null) },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable { onConverterClick(converter.id) },
-              )
+          when {
+            state.query.isBlank() -> {
+              if (suggestions.isEmpty()) {
+                EmptySearchHint("Start typing to search converters")
+              } else {
+                suggestions.forEach { converter ->
+                  SearchResultItem(converter = converter, onClick = onConverterClick)
+                }
+              }
+            }
+
+            state.results.isEmpty() -> {
+              EmptySearchHint("No converters found")
+            }
+
+            else -> {
+              state.results.forEach { converter ->
+                SearchResultItem(converter = converter, onClick = onConverterClick)
+              }
             }
           }
         }
@@ -204,6 +210,34 @@ fun HomeScreen(
       }
     }
   }
+}
+
+@Composable
+private fun SearchResultItem(
+  converter: Converter,
+  onClick: (String) -> Unit,
+) {
+  ListItem(
+    headlineContent = { Text(converter.name) },
+    supportingContent = { Text(converter.category.displayName) },
+    leadingContent = { Icon(converter.icon.imageVector(), contentDescription = null) },
+    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable { onClick(converter.id) },
+  )
+}
+
+@Composable
+private fun EmptySearchHint(text: String) {
+  Text(
+    text = text,
+    style = MaterialTheme.typography.bodyMedium,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 24.dp, vertical = 32.dp),
+  )
 }
 
 @Composable

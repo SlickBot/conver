@@ -30,8 +30,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -74,8 +76,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.slickbot.conver.domain.converter.MeasureUnit
 import eu.slickbot.conver.domain.converter.formatResult
 import eu.slickbot.conver.ui.components.ConverScaffold
-import eu.slickbot.conver.ui.icons.accent
 import eu.slickbot.conver.ui.components.scaffoldBodyPadding
+import eu.slickbot.conver.ui.icons.accent
 import eu.slickbot.conver.ui.util.rememberClipboardCopy
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -137,8 +139,11 @@ fun MeasurementScreenContent(
     },
     actions = {
       IconButton(onClick = onToggleFavorite) {
-        if (state.isFavorite) Icon(Icons.Outlined.Star, null, tint = accent)
-        else Icon(Icons.Outlined.StarOutline, null)
+        if (state.isFavorite) {
+          Icon(Icons.Outlined.Star, "Remove from favorites", tint = accent)
+        } else {
+          Icon(Icons.Outlined.StarOutline, "Add to favorites")
+        }
       }
     },
   ) { padding ->
@@ -242,15 +247,16 @@ fun MeasurementScreenContent(
                 },
                 label = "result",
               ) { shown ->
-                Text(
+                BasicText(
                   text = shown,
                   style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = (-2).sp,
+                    color = accent,
                   ),
-                  color = accent,
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
+                  autoSize = TextAutoSize.StepBased(minFontSize = 28.sp, maxFontSize = 57.sp, stepSize = 1.sp),
                 )
               }
             }
@@ -381,12 +387,15 @@ private fun QuickUnitChip(
         .fillMaxWidth()
         .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-      Text(
+      BasicText(
         text = value.ifEmpty { "—" },
-        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-        color = if (value.isNotEmpty()) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.titleSmall.copy(
+          fontWeight = FontWeight.SemiBold,
+          color = if (value.isNotEmpty()) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
+        autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = 14.sp, stepSize = 0.5.sp),
       )
       Text(
         text = unit.symbol,

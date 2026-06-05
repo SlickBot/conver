@@ -145,8 +145,11 @@ fun ReceiptSplitScreenContent(
     },
     actions = {
       IconButton(onClick = onToggleFavorite) {
-        if (state.isFavorite) Icon(Icons.Outlined.Star, null, tint = accent)
-        else Icon(Icons.Outlined.StarOutline, null)
+        if (state.isFavorite) {
+          Icon(Icons.Outlined.Star, "Remove from favorites", tint = accent)
+        } else {
+          Icon(Icons.Outlined.StarOutline, "Add to favorites")
+        }
       }
     },
   ) { padding ->
