@@ -27,6 +27,8 @@ jobs:
 
       - name: Set up Chrome (for wasm tests)
         uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Static analysis
         run: ./gradlew detekt --stacktrace
