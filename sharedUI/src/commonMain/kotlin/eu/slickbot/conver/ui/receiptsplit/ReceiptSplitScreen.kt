@@ -83,7 +83,7 @@ private val PillHeight = 36.dp
 
 @Composable
 fun ReceiptSplitScreen(
-  onBack: () -> Unit,
+  onBack: (() -> Unit)? = null,
   viewModel: ReceiptSplitViewModel = koinViewModel(),
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -114,7 +114,7 @@ fun ReceiptSplitScreen(
 @Composable
 fun ReceiptSplitScreenContent(
   state: ReceiptSplitUiState,
-  onBack: () -> Unit,
+  onBack: (() -> Unit)? = null,
   onSplitModeChange: (SplitMode) -> Unit,
   onTotalChange: (String) -> Unit,
   onTaxChange: (String) -> Unit,
@@ -137,8 +137,10 @@ fun ReceiptSplitScreenContent(
   ConverScaffold(
     title = "Receipt split",
     navigationIcon = {
-      IconButton(onClick = onBack) {
-        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+      if (onBack != null) {
+        IconButton(onClick = onBack) {
+          Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+        }
       }
     },
     actions = {

@@ -48,8 +48,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun TextTransformScreen(
   converterId: String,
-  onBack: () -> Unit,
-  viewModel: TextTransformViewModel = koinViewModel { parametersOf(converterId) },
+  onBack: (() -> Unit)? = null,
+  viewModel: TextTransformViewModel = koinViewModel(key = converterId) { parametersOf(converterId) },
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
   LaunchedEffect(state.input, state.modeId) {
@@ -70,7 +70,7 @@ fun TextTransformScreenContent(
   onInputChange: (String) -> Unit,
   onModeChange: (String) -> Unit,
   onToggleFavorite: () -> Unit,
-  onBack: () -> Unit,
+  onBack: (() -> Unit)? = null,
 ) {
   val haptic = LocalHapticFeedback.current
   val copyToClipboard = rememberClipboardCopy()
@@ -80,8 +80,10 @@ fun TextTransformScreenContent(
   ConverScaffold(
     title = state.converter.name,
     navigationIcon = {
-      IconButton(onClick = onBack) {
-        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+      if (onBack != null) {
+        IconButton(onClick = onBack) {
+          Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+        }
       }
     },
     actions = {

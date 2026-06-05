@@ -83,8 +83,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun MeasurementScreen(
   converterId: String,
-  onBack: () -> Unit,
-  viewModel: MeasurementViewModel = koinViewModel { parametersOf(converterId) },
+  onBack: (() -> Unit)? = null,
+  viewModel: MeasurementViewModel = koinViewModel(key = converterId) { parametersOf(converterId) },
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
   LaunchedEffect(state.input, state.fromUnitId, state.toUnitId) {
@@ -109,7 +109,7 @@ fun MeasurementScreenContent(
   onToChange: (String) -> Unit,
   onSwap: () -> Unit,
   onToggleFavorite: () -> Unit,
-  onBack: () -> Unit,
+  onBack: (() -> Unit)? = null,
 ) {
   val haptic = LocalHapticFeedback.current
   val copyToClipboard = rememberClipboardCopy()
@@ -129,8 +129,10 @@ fun MeasurementScreenContent(
   ConverScaffold(
     title = state.converter.name,
     navigationIcon = {
-      IconButton(onClick = onBack) {
-        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+      if (onBack != null) {
+        IconButton(onClick = onBack) {
+          Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+        }
       }
     },
     actions = {
