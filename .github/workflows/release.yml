@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Gate the tag format and derive the padded desktop version.
   validate:
     name: Validate tag
     runs-on: ubuntu-latest
@@ -22,26 +23,25 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      # Gate everything on a strict vMAJOR.MINOR.PATCH tag so a malformed tag can
-      # never half-publish (jpackage/MSI rejects anything that isn't 3 numeric parts).
-      - name: Enforce vMAJOR.MINOR.PATCH
+      # Accept v1.1 or v1.1.1
+      - name: Validate tag & derive desktop version
         id: version
         run: |
           TAG="${{ github.ref_name }}"
-          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Tag '$TAG' must be vMAJOR.MINOR.PATCH (e.g. v1.2.3)."
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "::error::Tag '$TAG' must be numeric vX.Y or vX.Y.Z (e.g. v1.1, v1.1.1)."
             exit 1
           fi
-          # Bare version (no leading v) for jpackage's -PdesktopVersion. Computed once here.
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          # Pad missing components so jpackage/MSI always gets major.minor.patch.
+          IFS='.' read -r MAJ MIN PAT _ <<< "${TAG#v}"
+          echo "version=${MAJ:-0}.${MIN:-0}.${PAT:-0}" >> "$GITHUB_OUTPUT"
 
+  # Static analysis + JVM/Android/wasm unit tests.
   test:
     name: Unit tests
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Mirrors ci.yml's verify job (minus the build-all-targets step).
-    # Keep in sync when changing test commands there.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -67,9 +67,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # ---- Platform builds: fan out in parallel after tests, artifact-only.
-  #      None of these touch the GitHub Release - that avoids concurrent writers.
-
+  # Build signed release + debug APKs and stage them as an artifact.
   android:
     name: Android APKs
     needs: test
@@ -113,6 +111,7 @@ jobs:
           path: staging/
           if-no-files-found: error
 
+  # Package native installers for each desktop OS.
   desktop:
     name: Desktop installers
     needs: [validate, test]
@@ -150,6 +149,7 @@ jobs:
           path: dist/
           if-no-files-found: error
 
+  # Build the wasm web bundle: a release zip plus the Pages artifact.
   web-build:
     name: Web bundle
     needs: test
@@ -183,15 +183,13 @@ jobs:
         with:
           path: webApp/build/dist/wasmJs/productionExecutable
 
-  # ---- Single terminal writer: one Release object, created once from all artifacts.
-
+  # Collect every platform's artifacts and publish one GitHub Release.
   create-release:
     name: Publish GitHub Release
     needs: [android, desktop, web-build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Pull every platform's artifacts (but not test-reports) into one flat dir.
       - name: Download release artifacts
         uses: actions/download-artifact@v8
         with:
@@ -207,7 +205,7 @@ jobs:
           files: release-files/*
           fail_on_unmatched_files: true
 
-  # Pages deploy is independent of the Release; it only needs the pages artifact.
+  # Deploy the web bundle to GitHub Pages.
   web-deploy:
     name: Deploy web to Pages
     needs: web-build
