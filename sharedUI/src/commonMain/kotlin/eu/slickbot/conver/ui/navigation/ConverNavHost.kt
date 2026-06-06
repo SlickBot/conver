@@ -176,7 +176,10 @@ private fun BrandedSidebar(
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 24.dp),
+        modifier = Modifier
+          .clip(RoundedCornerShape(8.dp))
+          .clickable { onSelect(TopLevelDestination.Home) }
+          .padding(start = 12.dp, top = 8.dp, bottom = 24.dp),
       )
       TopLevelDestination.entries.forEach { top ->
         val selected = top == currentTab

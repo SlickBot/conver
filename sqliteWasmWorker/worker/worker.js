@@ -1,6 +1,11 @@
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 let sqlite3 = null;
+// OPFS SyncAccessHandle Pool VFS. Unlike oo1.OpfsDb it needs no cross-origin
+// isolation (COOP/COEP), so it works on static hosts like GitHub Pages. Null
+// until the pool is installed, or if OPFS is unavailable (then we fall back to
+// a transient in-memory DB - the app works but persistence is lost).
+let dbPool = null;
 
 // Maps to track of active database connections and prepared statements by their unique IDs.
 const databases = new Map(); // stores databaseId -> SQLiteDbObject
@@ -13,7 +18,9 @@ let nextStatementId = 0;
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
-        const newDatabase = new sqlite3.oo1.OpfsDb(requestData.fileName);
+        const newDatabase = dbPool
+            ? new dbPool.OpfsSAHPoolDb(requestData.fileName)
+            : new sqlite3.oo1.DB(':memory:', 'c');
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
@@ -149,8 +156,14 @@ onmessage = (e) => {
     }
 };
 
-sqlite3InitModule().then(instance => {
+sqlite3InitModule().then(async instance => {
     sqlite3 = instance;
+    try {
+        dbPool = await sqlite3.installOpfsSAHPoolVfs({});
+    } catch (error) {
+        console.warn("OPFS SAH pool unavailable, falling back to in-memory DB:", error);
+        dbPool = null;
+    }
     while (messageQueue.length > 0) {
         handleMessage(messageQueue.shift());
     }
