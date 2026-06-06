@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +35,20 @@ import eu.slickbot.conver.model.ThemeMode
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
+fun SettingsScreen(
+  onBack: () -> Unit,
+  viewModel: SettingsViewModel = koinViewModel(),
+) {
   val prefs by viewModel.preferences.collectAsStateWithLifecycle()
 
-  ConverScaffold(title = "Settings") { padding ->
+  ConverScaffold(
+    title = "Settings",
+    navigationIcon = {
+      IconButton(onClick = onBack) {
+        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+      }
+    },
+  ) { padding ->
     LazyColumn(
       contentPadding = PaddingValues(
         top = padding.calculateTopPadding(),
@@ -162,6 +177,11 @@ private fun <T> ChipRow(
         selected = isSelected(item),
         onClick = { onSelect(item) },
         label = { Text(label(item)) },
+        colors = FilterChipDefaults.filterChipColors(
+          containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+          selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+        border = null,
       )
     }
   }

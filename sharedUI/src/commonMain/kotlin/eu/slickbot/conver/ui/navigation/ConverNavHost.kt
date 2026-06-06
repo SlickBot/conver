@@ -107,9 +107,14 @@ fun ConverNavHost(
         )
       }
       composable<Destination.Favorites> {
-        FavoritesScreen(onConverterClick = ::selectConverter)
+        FavoritesScreen(
+          onConverterClick = ::selectConverter,
+          onBack = { selectTab(TopLevelDestination.Home) },
+        )
       }
-      composable<Destination.Settings> { SettingsScreen() }
+      composable<Destination.Settings> {
+        SettingsScreen(onBack = { selectTab(TopLevelDestination.Home) })
+      }
       composable<Destination.CategoryDetail> { entry ->
         val args = entry.toRoute<Destination.CategoryDetail>()
         CategoryDetailScreen(
@@ -177,9 +182,11 @@ private fun BrandedSidebar(
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-          .clip(RoundedCornerShape(8.dp))
+          .padding(top = 4.dp, bottom = 20.dp)
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(14.dp))
           .clickable { onSelect(TopLevelDestination.Home) }
-          .padding(start = 12.dp, top = 8.dp, bottom = 24.dp),
+          .padding(horizontal = 14.dp, vertical = 10.dp),
       )
       TopLevelDestination.entries.forEach { top ->
         val selected = top == currentTab
