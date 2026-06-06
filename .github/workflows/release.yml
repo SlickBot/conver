@@ -15,21 +15,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    name: Validate tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      # Gate everything on a strict vMAJOR.MINOR.PATCH tag so a malformed tag can
+      # never half-publish (jpackage/MSI rejects anything that isn't 3 numeric parts).
+      - name: Enforce vMAJOR.MINOR.PATCH
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag '$TAG' must be vMAJOR.MINOR.PATCH (e.g. v1.2.3)."
+            exit 1
+          fi
+          # Bare version (no leading v) for jpackage's -PdesktopVersion. Computed once here.
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
   test:
     name: Unit tests
+    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Mirrors ci.yml's verify job (minus the build-all-targets step).
     # Keep in sync when changing test commands there.
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up build environment
         uses: ./.github/actions/setup
 
       - name: Set up Chrome (for wasm tests)
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
 
       - name: Static analysis
         run: ./gradlew detekt --stacktrace
@@ -39,23 +60,24 @@ jobs:
 
       - name: Upload test reports
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports
           path: '**/build/reports/tests/'
           if-no-files-found: ignore
           retention-days: 14
 
-  release:
-    name: Build signed release & publish
+  # ---- Platform builds: fan out in parallel after tests, artifact-only.
+  #      None of these touch the GitHub Release - that avoids concurrent writers.
+
+  android:
+    name: Android APKs
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
       - name: Set up build environment
         uses: ./.github/actions/setup
@@ -76,29 +98,24 @@ jobs:
         if: always()
         run: rm -f "${{ runner.temp }}/release-key.jks"
 
-      - name: Rename APKs & R8 mapping
+      - name: Stage release artifacts
         run: |
-          mv androidApp/build/outputs/apk/debug/androidApp-debug.apk androidApp/build/outputs/apk/debug/conver-${{ github.ref_name }}-debug.apk
-          mv androidApp/build/outputs/apk/release/androidApp-release.apk androidApp/build/outputs/apk/release/conver-${{ github.ref_name }}-release.apk
-          gzip -c androidApp/build/outputs/mapping/release/mapping.txt > "androidApp/build/outputs/mapping/release/conver-${{ github.ref_name }}-release-mapping.txt.gz"
-
-      # Creates the release object (with generated notes); the desktop & web jobs
-      # upsert their files into it. generate_release_notes only applies on first creation.
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ github.ref_name }}
-          generate_release_notes: true
+          mkdir -p staging
+          mv androidApp/build/outputs/apk/debug/androidApp-debug.apk staging/conver-${{ github.ref_name }}-debug.apk
+          mv androidApp/build/outputs/apk/release/androidApp-release.apk staging/conver-${{ github.ref_name }}-release.apk
           # The R8 mapping is published too (safe: OSS repo) so crash traces decode.
-          files: |
-            androidApp/build/outputs/apk/debug/conver-${{ github.ref_name }}-debug.apk
-            androidApp/build/outputs/apk/release/conver-${{ github.ref_name }}-release.apk
-            androidApp/build/outputs/mapping/release/conver-${{ github.ref_name }}-release-mapping.txt.gz
-          fail_on_unmatched_files: true
+          gzip -c androidApp/build/outputs/mapping/release/mapping.txt > staging/conver-${{ github.ref_name }}-release-mapping.txt.gz
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-android
+          path: staging/
+          if-no-files-found: error
 
   desktop:
     name: Desktop installers
-    needs: [test, release]
+    needs: [validate, test]
     strategy:
       fail-fast: false
       matrix:
@@ -107,7 +124,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up build environment
         uses: ./.github/actions/setup
@@ -115,9 +132,7 @@ jobs:
       - name: Package native distribution
         shell: bash
         run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"
-          ./gradlew :desktopApp:packageReleaseDistributionForCurrentOS -PdesktopVersion="$VERSION" --stacktrace
+          ./gradlew :desktopApp:packageReleaseDistributionForCurrentOS -PdesktopVersion="${{ needs.validate.outputs.version }}" --stacktrace
 
       - name: Collect installers
         shell: bash
@@ -127,21 +142,22 @@ jobs:
             \( -name '*.dmg' -o -name '*.msi' -o -name '*.deb' -o -name '*.rpm' -o -name '*.exe' \) \
             -exec cp {} dist/ \;
 
-      - name: Attach to release
-        uses: softprops/action-gh-release@v2
+      - name: Upload desktop artifacts
+        uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.ref_name }}
-          files: dist/*
-          fail_on_unmatched_files: true
+          # Per-OS name: upload-artifact requires unique names across matrix legs.
+          name: release-desktop-${{ matrix.os }}
+          path: dist/
+          if-no-files-found: error
 
   web-build:
     name: Web bundle
-    needs: [test, release]
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up build environment
         uses: ./.github/actions/setup
@@ -151,21 +167,47 @@ jobs:
 
       - name: Zip the bundle
         run: |
+          mkdir -p staging
           cd webApp/build/dist/wasmJs/productionExecutable
-          zip -r "$GITHUB_WORKSPACE/conver-${{ github.ref_name }}-web.zip" .
+          zip -r "$GITHUB_WORKSPACE/staging/conver-${{ github.ref_name }}-web.zip" .
 
-      - name: Attach zip to release
-        uses: softprops/action-gh-release@v2
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.ref_name }}
-          files: conver-${{ github.ref_name }}-web.zip
-          fail_on_unmatched_files: true
+          name: release-web
+          path: staging/
+          if-no-files-found: error
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: webApp/build/dist/wasmJs/productionExecutable
 
+  # ---- Single terminal writer: one Release object, created once from all artifacts.
+
+  create-release:
+    name: Publish GitHub Release
+    needs: [android, desktop, web-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Pull every platform's artifacts (but not test-reports) into one flat dir.
+      - name: Download release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: release-files
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: release-files/*
+          fail_on_unmatched_files: true
+
+  # Pages deploy is independent of the Release; it only needs the pages artifact.
   web-deploy:
     name: Deploy web to Pages
     needs: web-build
@@ -177,4 +219,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
