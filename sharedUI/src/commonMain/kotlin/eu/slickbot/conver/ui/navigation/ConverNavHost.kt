@@ -84,8 +84,6 @@ fun ConverNavHost(
     }
   }
 
-  // Open a converter. Replaces any current converter so back returns to the category, not through
-  // every converter that was viewed in the two-pane.
   fun selectConverter(converterId: String) {
     navController.navigate(Destination.Converter(converterId)) {
       popUpTo<Destination.Converter> { inclusive = true }
@@ -94,48 +92,11 @@ fun ConverNavHost(
   }
 
   val navHost = @Composable {
-    NavHost(
+    ConverNavGraph(
       navController = navController,
-      startDestination = Destination.Home,
-    ) {
-      composable<Destination.Home> {
-        HomeScreen(
-          onConverterClick = ::selectConverter,
-          onCategoryClick = { category ->
-            navController.navigate(Destination.CategoryDetail(category.name))
-          },
-        )
-      }
-      composable<Destination.Favorites> {
-        FavoritesScreen(
-          onConverterClick = ::selectConverter,
-          onBack = { selectTab(TopLevelDestination.Home) },
-        )
-      }
-      composable<Destination.Settings> {
-        SettingsScreen(onBack = { selectTab(TopLevelDestination.Home) })
-      }
-      composable<Destination.CategoryDetail> { entry ->
-        val args = entry.toRoute<Destination.CategoryDetail>()
-        CategoryDetailScreen(
-          categoryId = args.categoryId,
-          selectedConverterId = null,
-          onBack = { navController.popBackStack() },
-          onSelectConverter = ::selectConverter,
-        )
-      }
-      composable<Destination.Converter> { entry ->
-        val args = entry.toRoute<Destination.Converter>()
-        val registry: ConverterRegistry = koinInject()
-        val categoryId = registry[args.converterId]?.category?.name ?: ""
-        CategoryDetailScreen(
-          categoryId = categoryId,
-          selectedConverterId = args.converterId,
-          onBack = { navController.popBackStack() },
-          onSelectConverter = ::selectConverter,
-        )
-      }
-    }
+      onSelectConverter = ::selectConverter,
+      onLeaveTab = { selectTab(TopLevelDestination.Home) },
+    )
   }
 
   BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -160,6 +121,56 @@ fun ConverNavHost(
           }
         },
       ) { navHost() }
+    }
+  }
+}
+
+@Composable
+private fun ConverNavGraph(
+  navController: NavHostController,
+  onSelectConverter: (String) -> Unit,
+  onLeaveTab: () -> Unit,
+) {
+  NavHost(
+    navController = navController,
+    startDestination = Destination.Home,
+  ) {
+    composable<Destination.Home> {
+      HomeScreen(
+        onConverterClick = onSelectConverter,
+        onCategoryClick = { category ->
+          navController.navigate(Destination.CategoryDetail(category.name))
+        },
+      )
+    }
+    composable<Destination.Favorites> {
+      FavoritesScreen(
+        onConverterClick = onSelectConverter,
+        onBack = onLeaveTab,
+      )
+    }
+    composable<Destination.Settings> {
+      SettingsScreen(onBack = onLeaveTab)
+    }
+    composable<Destination.CategoryDetail> { entry ->
+      val args = entry.toRoute<Destination.CategoryDetail>()
+      CategoryDetailScreen(
+        categoryId = args.categoryId,
+        selectedConverterId = null,
+        onBack = { navController.popBackStack() },
+        onSelectConverter = onSelectConverter,
+      )
+    }
+    composable<Destination.Converter> { entry ->
+      val args = entry.toRoute<Destination.Converter>()
+      val registry: ConverterRegistry = koinInject()
+      val categoryId = registry[args.converterId]?.category?.name ?: ""
+      CategoryDetailScreen(
+        categoryId = categoryId,
+        selectedConverterId = args.converterId,
+        onBack = { navController.popBackStack() },
+        onSelectConverter = onSelectConverter,
+      )
     }
   }
 }

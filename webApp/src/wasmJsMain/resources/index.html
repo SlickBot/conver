@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Pin the asset base to the app root  -->
+    <script>
+      (function () {
+        const base = document.createElement('base');
+        base.setAttribute('href', window.location.pathname);
+        document.head.appendChild(base);
+      }())
+    </script>
     <title>Conver</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">

@@ -30,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import eu.slickbot.conver.ui.components.ConverScaffold
 import eu.slickbot.conver.model.ThemeMode
+import eu.slickbot.conver.ui.components.ConverScaffold
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -60,28 +60,7 @@ fun SettingsScreen(
     ) {
       item { SectionHeader("Appearance") }
       item {
-        Card(
-          shape = RoundedCornerShape(20.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-          ),
-          modifier = Modifier.fillMaxWidth(),
-        ) {
-          Column(
-            modifier = Modifier
-              .padding(16.dp)
-              .selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-          ) {
-            Text("Theme", style = MaterialTheme.typography.titleSmall)
-            ChipRow(
-              items = ThemeMode.entries,
-              isSelected = { it == prefs.themeMode },
-              onSelect = viewModel::setThemeMode,
-              label = { it.display() },
-            )
-          }
-        }
+        ThemeCard(selected = prefs.themeMode, onSelect = viewModel::setThemeMode)
       }
       item {
         SwitchRow(
@@ -101,28 +80,59 @@ fun SettingsScreen(
         )
       }
       item {
-        Card(
-          shape = RoundedCornerShape(20.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-          ),
-        ) {
-          Column(modifier = Modifier.padding(16.dp)) {
-            Text("Decimal precision", style = MaterialTheme.typography.titleSmall)
-            Text(
-              "${prefs.decimalPrecision} digits",
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Slider(
-              value = prefs.decimalPrecision.toFloat(),
-              onValueChange = { viewModel.setDecimalPrecision(it.toInt()) },
-              valueRange = 0f..12f,
-              steps = 11,
-            )
-          }
-        }
+        PrecisionCard(precision = prefs.decimalPrecision, onChange = viewModel::setDecimalPrecision)
       }
+    }
+  }
+}
+
+@Composable
+private fun ThemeCard(selected: ThemeMode, onSelect: (ThemeMode) -> Unit) {
+  Card(
+    shape = RoundedCornerShape(20.dp),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+    ),
+    modifier = Modifier.fillMaxWidth(),
+  ) {
+    Column(
+      modifier = Modifier
+        .padding(16.dp)
+        .selectableGroup(),
+      verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+      Text("Theme", style = MaterialTheme.typography.titleSmall)
+      ChipRow(
+        items = ThemeMode.entries,
+        isSelected = { it == selected },
+        onSelect = onSelect,
+        label = { it.display() },
+      )
+    }
+  }
+}
+
+@Composable
+private fun PrecisionCard(precision: Int, onChange: (Int) -> Unit) {
+  Card(
+    shape = RoundedCornerShape(20.dp),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+    ),
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      Text("Decimal precision", style = MaterialTheme.typography.titleSmall)
+      Text(
+        "$precision digits",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      Slider(
+        value = precision.toFloat(),
+        onValueChange = { onChange(it.toInt()) },
+        valueRange = 0f..12f,
+        steps = 11,
+      )
     }
   }
 }

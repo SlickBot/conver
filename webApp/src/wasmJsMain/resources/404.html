@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Conver</title>
+    <!-- GitHub Pages serves this for any path that isn't a real file. We can't rewrite
+         to index.html server-side, so redirect the deep link to <root>/?/<path> and let
+         index.html decode it back. pathSegmentsToKeep = 1 keeps the project base (/conver). -->
+    <script>
+      (function (l) {
+        const pathSegmentsToKeep = 1;
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+        );
+      }(window.location))
+    </script>
+  </head>
+  <body></body>
+</html>
