@@ -85,8 +85,11 @@ fun ConverNavHost(
   }
 
   fun selectConverter(converterId: String) {
+    // launchSingleTop keeps a single Converter entry on the stack: re-selecting in the two-pane
+    // updates the route args in place (so the browser URL syncs to /category/converter without a
+    // re-mount or scroll reset), and Back still returns to the category rather than stepping back
+    // through every converter that was viewed.
     navController.navigate(Destination.Converter(converterId)) {
-      popUpTo<Destination.Converter> { inclusive = true }
       launchSingleTop = true
     }
   }

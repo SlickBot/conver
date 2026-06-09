@@ -30,10 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,8 +64,8 @@ fun CategoryDetailScreen(
   BoxWithConstraints(Modifier.fillMaxSize()) {
     when {
       maxWidth >= TwoPaneBreakpoint && state.converters.isNotEmpty() -> {
-        val initialSelected = selectedConverterId ?: state.converters.first().id
-        TwoPane(title, state.converters, initialSelected, onBack)
+        val selected = selectedConverterId ?: state.converters.first().id
+        TwoPane(title, state.converters, selected, onBack, onSelectConverter)
       }
       selectedConverterId != null -> ConverterDispatch(converterId = selectedConverterId, onBack = onBack)
       else -> SinglePaneList(title, state.converters, onBack, onSelectConverter)
@@ -81,10 +77,10 @@ fun CategoryDetailScreen(
 private fun TwoPane(
   title: String,
   converters: List<Converter>,
-  initialSelectedId: String,
+  selectedId: String,
   onBack: () -> Unit,
+  onSelectConverter: (String) -> Unit,
 ) {
-  var selectedId by rememberSaveable(initialSelectedId) { mutableStateOf(initialSelectedId) }
   Row(Modifier.fillMaxSize()) {
     Surface(
       modifier = Modifier.width(300.dp).fillMaxHeight(),
@@ -108,7 +104,7 @@ private fun TwoPane(
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp, vertical = 2.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { selectedId = converter.id }
+                .clickable { onSelectConverter(converter.id) }
                 .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
                 .padding(horizontal = 14.dp, vertical = 14.dp),
               verticalAlignment = Alignment.CenterVertically,

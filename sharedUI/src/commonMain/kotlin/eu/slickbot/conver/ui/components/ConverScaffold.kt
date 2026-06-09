@@ -11,9 +11,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +34,15 @@ fun ConverScaffold(
         title = { Text(title) },
         actions = { actions() },
         navigationIcon = { navigationIcon() },
+        // Transparent container so the bar shows the Scaffold/Surface background behind it. The bar
+        // background and the page background are the same color (surface == background in every
+        // scheme), but Material3's TopAppBar animates its container via animateColorAsState - so on a
+        // theme switch the bar would visibly tween while the rest of the screen snaps. Transparent
+        // means there's nothing to animate and the bar matches the instant background change.
+        colors = TopAppBarDefaults.topAppBarColors(
+          containerColor = Color.Transparent,
+          scrolledContainerColor = Color.Transparent,
+        ),
       )
     },
     snackbarHost = { SnackbarHost(snackbarHostState) },

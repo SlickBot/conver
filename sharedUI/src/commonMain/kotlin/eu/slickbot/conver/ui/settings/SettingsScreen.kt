@@ -62,22 +62,28 @@ fun SettingsScreen(
       item {
         ThemeCard(selected = prefs.themeMode, onSelect = viewModel::setThemeMode)
       }
-      item {
-        SwitchRow(
-          title = "Dynamic color",
-          subtitle = "Use the wallpaper palette (Android 12+)",
-          checked = prefs.dynamicColor,
-          onChange = viewModel::setDynamicColor,
-        )
+      // Dynamic (wallpaper) color is Android 12+ only; hide the toggle where it does nothing.
+      if (supportsDynamicColor) {
+        item {
+          SwitchRow(
+            title = "Dynamic color",
+            subtitle = "Use the wallpaper palette (Android 12+)",
+            checked = prefs.dynamicColor,
+            onChange = viewModel::setDynamicColor,
+          )
+        }
       }
       item { SectionHeader("Behavior") }
-      item {
-        SwitchRow(
-          title = "Haptics",
-          subtitle = "Vibrate on swap and copy",
-          checked = prefs.haptics,
-          onChange = viewModel::setHaptics,
-        )
+      // Haptics are a no-op on desktop/web; only offer the toggle on touch platforms.
+      if (supportsHaptics) {
+        item {
+          SwitchRow(
+            title = "Haptics",
+            subtitle = "Vibrate on swap and copy",
+            checked = prefs.haptics,
+            onChange = viewModel::setHaptics,
+          )
+        }
       }
       item {
         PrecisionCard(precision = prefs.decimalPrecision, onChange = viewModel::setDecimalPrecision)
