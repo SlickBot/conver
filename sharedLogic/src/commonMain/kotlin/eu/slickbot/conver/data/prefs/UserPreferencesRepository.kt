@@ -1,14 +1,14 @@
 package eu.slickbot.conver.data.prefs
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import com.russhwolf.settings.ObservableSettings
+import com.russhwolf.settings.coroutines.getBooleanFlow
+import com.russhwolf.settings.coroutines.getIntFlow
+import com.russhwolf.settings.coroutines.getStringOrNullFlow
 import eu.slickbot.conver.model.ThemeMode
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.withContext
 
 data class UserPreferences(
   val themeMode: ThemeMode = ThemeMode.System,
@@ -17,37 +17,45 @@ data class UserPreferences(
   val decimalPrecision: Int = 6,
 )
 
-class UserPreferencesRepository(private val store: DataStore<Preferences>) {
+class UserPreferencesRepository(
+  private val settings: ObservableSettings,
+  private val dispatcher: CoroutineDispatcher,
+) {
 
-  private object Keys {
-    val ThemeMode = stringPreferencesKey("theme_mode")
-    val DynamicColor = booleanPreferencesKey("dynamic_color")
-    val Haptics = booleanPreferencesKey("haptics")
-    val DecimalPrecision = intPreferencesKey("decimal_precision")
+  companion object {
+    private const val KEY_THEME_MODE = "theme_mode"
+    private const val KEY_DYNAMIC_COLOR = "dynamic_color"
+    private const val KEY_HAPTICS = "haptics"
+    private const val KEY_DECIMAL_PRECISION = "decimal_precision"
   }
 
-  val preferences: Flow<UserPreferences> = store.data.map { prefs ->
+  val preferences: Flow<UserPreferences> = combine(
+    settings.getStringOrNullFlow(KEY_THEME_MODE),
+    settings.getBooleanFlow(KEY_DYNAMIC_COLOR, true),
+    settings.getBooleanFlow(KEY_HAPTICS, true),
+    settings.getIntFlow(KEY_DECIMAL_PRECISION, 6),
+  ) { themeName, dynamicColor, haptics, precision ->
     UserPreferences(
-      themeMode = prefs[Keys.ThemeMode]?.let { ThemeMode.fromName(it) } ?: ThemeMode.System,
-      dynamicColor = prefs[Keys.DynamicColor] ?: true,
-      haptics = prefs[Keys.Haptics] ?: true,
-      decimalPrecision = prefs[Keys.DecimalPrecision] ?: 6,
+      themeMode = themeName?.let { ThemeMode.fromName(it) } ?: ThemeMode.System,
+      dynamicColor = dynamicColor,
+      haptics = haptics,
+      decimalPrecision = precision,
     )
   }
 
   suspend fun setThemeMode(mode: ThemeMode) {
-    store.edit { it[Keys.ThemeMode] = mode.name }
+    withContext(dispatcher) { settings.putString(KEY_THEME_MODE, mode.name) }
   }
 
   suspend fun setDynamicColor(enabled: Boolean) {
-    store.edit { it[Keys.DynamicColor] = enabled }
+    withContext(dispatcher) { settings.putBoolean(KEY_DYNAMIC_COLOR, enabled) }
   }
 
   suspend fun setHaptics(enabled: Boolean) {
-    store.edit { it[Keys.Haptics] = enabled }
+    withContext(dispatcher) { settings.putBoolean(KEY_HAPTICS, enabled) }
   }
 
   suspend fun setDecimalPrecision(precision: Int) {
-    store.edit { it[Keys.DecimalPrecision] = precision.coerceIn(0, 12) }
+    withContext(dispatcher) { settings.putInt(KEY_DECIMAL_PRECISION, precision.coerceIn(0, 12)) }
   }
 }

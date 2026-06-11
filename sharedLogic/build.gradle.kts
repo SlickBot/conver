@@ -3,8 +3,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.kotlin.multiplatform.library)
-  alias(libs.plugins.ksp)
-  alias(libs.plugins.room)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.detekt)
 }
@@ -12,6 +10,9 @@ plugins {
 kotlin {
   compilerOptions {
     freeCompilerArgs.add("-Xexpect-actual-classes")
+    optIn.add("com.russhwolf.settings.ExperimentalSettingsApi")
+    optIn.add("kotlin.uuid.ExperimentalUuidApi")
+    optIn.add("kotlin.io.encoding.ExperimentalEncodingApi")
   }
 
   jvm()
@@ -28,10 +29,9 @@ kotlin {
     browser()
   }
 
-  // NOTE: Room 3.0.0-alpha06 and androidx.sqlite 2.7.0-alpha06 do NOT publish an
-  // iosX64 variant (only iosArm64 + iosSimulatorArm64), so iosX64 is omitted here.
   iosArm64()
   iosSimulatorArm64()
+  iosX64()
 
   sourceSets {
     commonMain.dependencies {
@@ -39,31 +39,20 @@ kotlin {
       implementation(libs.kotlincrypto.hash.md5)
       implementation(libs.kotlincrypto.hash.sha1)
       implementation(libs.kotlincrypto.hash.sha2)
-      implementation(libs.androidx.room3.runtime)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.serialization.json)
       implementation(libs.kotlinx.datetime)
-      implementation(libs.androidx.datastore.preferences.core)
+      implementation(libs.multiplatform.settings)
+      implementation(libs.multiplatform.settings.coroutines)
       implementation(libs.jb.lifecycle.viewmodel)
       implementation(project.dependencies.platform(libs.koin.bom))
       implementation(libs.koin.core)
       implementation(libs.koin.core.viewmodel)
     }
-    // sqlite-bundled (JNI/native-bundled driver) has no wasmJs variant; the wasm
-    // target uses sqlite-web instead. Keep it out of the commonMain.
-    jvmMain.dependencies {
-      implementation(libs.androidx.sqlite.bundled)
-    }
-    androidMain.dependencies {
-      implementation(libs.androidx.sqlite.bundled)
-    }
-    iosMain.dependencies {
-      implementation(libs.androidx.sqlite.bundled)
-    }
+    // StorageSettings (browser localStorage) is not ObservableSettings, so wrap it with
+    // make-observable; the Android/JVM/iOS Settings implementations are already observable.
     wasmJsMain.dependencies {
-      implementation(libs.androidx.sqlite.web)
-      implementation(project(":sqliteWasmWorker"))
-      implementation(libs.kotlinx.browser)
+      implementation(libs.multiplatform.settings.make.observable)
     }
     commonTest.dependencies {
       implementation(kotlin("test"))
@@ -75,16 +64,4 @@ kotlin {
       implementation(libs.koin.test)
     }
   }
-}
-
-extensions.configure<androidx.room3.gradle.RoomExtension> {
-  schemaDirectory("$projectDir/schemas")
-}
-
-dependencies {
-  add("kspAndroid", libs.androidx.room3.compiler)
-  add("kspJvm", libs.androidx.room3.compiler)
-  add("kspWasmJs", libs.androidx.room3.compiler)
-  add("kspIosArm64", libs.androidx.room3.compiler)
-  add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
 }

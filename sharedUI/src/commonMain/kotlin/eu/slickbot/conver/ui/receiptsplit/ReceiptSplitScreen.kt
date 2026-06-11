@@ -114,7 +114,6 @@ fun ReceiptSplitScreen(
 @Composable
 fun ReceiptSplitScreenContent(
   state: ReceiptSplitUiState,
-  onBack: (() -> Unit)? = null,
   onSplitModeChange: (SplitMode) -> Unit,
   onTotalChange: (String) -> Unit,
   onTaxChange: (String) -> Unit,
@@ -130,12 +129,15 @@ fun ReceiptSplitScreenContent(
   onUpdateItemPrice: (String, String) -> Unit,
   onToggleItemAssignment: (String, String) -> Unit,
   onToggleFavorite: () -> Unit,
+  modifier: Modifier = Modifier,
+  onBack: (() -> Unit)? = null,
 ) {
   val haptic = LocalHapticFeedback.current
   val copyToClipboard = rememberClipboardCopy()
 
   ConverScaffold(
     title = "Receipt split",
+    modifier = modifier,
     navigationIcon = {
       if (onBack != null) {
         IconButton(onClick = onBack) {

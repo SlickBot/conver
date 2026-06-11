@@ -74,6 +74,7 @@ fun CalculatorScreenContent(
   onFieldChange: (String, String) -> Unit,
   onModeChange: (String) -> Unit,
   onToggleFavorite: () -> Unit,
+  modifier: Modifier = Modifier,
   onBack: (() -> Unit)? = null,
 ) {
   val haptic = LocalHapticFeedback.current
@@ -84,6 +85,7 @@ fun CalculatorScreenContent(
 
   ConverScaffold(
     title = state.converter.name,
+    modifier = modifier,
     navigationIcon = {
       if (onBack != null) {
         IconButton(onClick = onBack) {

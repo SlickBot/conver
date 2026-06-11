@@ -1,17 +1,32 @@
-build:
-  maxIssues: 0
-formatting:
+ktlint:
   active: true
   android: false
   autoCorrect: false
   Indentation:
     indentSize: 2
+  # ktlint 1.8.0 (bundled with detekt 2.0) turns these on by default. They conflict with the
+  # project's established formatting, and FunctionExpressionBody/FunctionSignature also push
+  # single-expression bodies, against the block-body convention. Keep them off.
+  FunctionExpressionBody:
+    active: false
+  FunctionSignature:
+    active: false
+  ClassSignature:
+    active: false
+  EnumWrapping:
+    active: false
+  StatementWrapping:
+    active: false
+  BlankLineBetweenWhenConditions:
+    active: false
+  TrailingCommaOnCallSite:
+    active: false
 complexity:
   LongMethod:
-    threshold: 80
+    allowedLines: 80
   LongParameterList:
-    functionThreshold: 8
-    constructorThreshold: 10
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 10
 style:
   MagicNumber:
     active: false

@@ -111,6 +111,7 @@ fun MeasurementScreenContent(
   onToChange: (String) -> Unit,
   onSwap: () -> Unit,
   onToggleFavorite: () -> Unit,
+  modifier: Modifier = Modifier,
   onBack: (() -> Unit)? = null,
 ) {
   val haptic = LocalHapticFeedback.current
@@ -130,6 +131,7 @@ fun MeasurementScreenContent(
 
   ConverScaffold(
     title = state.converter.name,
+    modifier = modifier,
     navigationIcon = {
       if (onBack != null) {
         IconButton(onClick = onBack) {

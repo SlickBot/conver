@@ -12,13 +12,12 @@ kotlin {
   wasmJs {
     browser()
     binaries.executable()
-    useEsModules()  // worker uses import.meta.url → the whole bundle must be ES modules
+    useEsModules()
   }
   sourceSets {
     wasmJsMain.dependencies {
       implementation(project(":sharedUI"))
       implementation(project(":sharedLogic"))
-      implementation(project(":sqliteWasmWorker"))
       implementation(project.dependencies.platform(libs.koin.bom))
       implementation(libs.koin.core)
       implementation(libs.jb.compose.runtime)

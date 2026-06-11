@@ -57,11 +57,12 @@ fun CategoryDetailScreen(
   selectedConverterId: String?,
   onBack: () -> Unit,
   onSelectConverter: (String) -> Unit,
+  modifier: Modifier = Modifier,
   viewModel: CategoryDetailViewModel = koinViewModel(key = categoryId) { parametersOf(categoryId) },
 ) {
   val state = viewModel.uiState
   val title = state.category?.displayName ?: "Category"
-  BoxWithConstraints(Modifier.fillMaxSize()) {
+  BoxWithConstraints(modifier.fillMaxSize()) {
     when {
       maxWidth >= TwoPaneBreakpoint && state.converters.isNotEmpty() -> {
         val selected = selectedConverterId ?: state.converters.first().id

@@ -37,12 +37,14 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SettingsScreen(
   onBack: () -> Unit,
+  modifier: Modifier = Modifier,
   viewModel: SettingsViewModel = koinViewModel(),
 ) {
   val prefs by viewModel.preferences.collectAsStateWithLifecycle()
 
   ConverScaffold(
     title = "Settings",
+    modifier = modifier,
     navigationIcon = {
       IconButton(onClick = onBack) {
         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")

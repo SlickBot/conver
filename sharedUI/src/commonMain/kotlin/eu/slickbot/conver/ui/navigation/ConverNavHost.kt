@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,10 +54,12 @@ import org.koin.compose.koinInject
 
 @Composable
 fun ConverNavHost(
+  modifier: Modifier = Modifier,
   navController: NavHostController = rememberNavController(),
   onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
-  LaunchedEffect(navController) { onNavHostReady(navController) }
+  val currentOnNavHostReady by rememberUpdatedState(onNavHostReady)
+  LaunchedEffect(navController) { currentOnNavHostReady(navController) }
 
   var currentTab by rememberSaveable { mutableStateOf(TopLevelDestination.Home) }
 
@@ -102,7 +105,7 @@ fun ConverNavHost(
     )
   }
 
-  BoxWithConstraints(Modifier.fillMaxSize()) {
+  BoxWithConstraints(modifier.fillMaxSize()) {
     if (maxWidth >= SidebarBreakpoint) {
       // Wide screens: branded sidebar + content area.
       Row(Modifier.fillMaxSize()) {

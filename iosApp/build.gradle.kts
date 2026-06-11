@@ -6,7 +6,7 @@ plugins {
 }
 
 kotlin {
-  listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+  listOf(iosArm64(), iosSimulatorArm64(), iosX64()).forEach { target ->
     target.binaries.framework {
       baseName = "ConverApp"
       isStatic = true

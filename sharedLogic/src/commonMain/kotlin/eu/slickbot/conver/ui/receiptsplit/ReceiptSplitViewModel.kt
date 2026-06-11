@@ -12,15 +12,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 // ── Data models ──────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalUuidApi::class)
 data class Person(val id: String = Uuid.random().toString(), val name: String)
 
-@OptIn(ExperimentalUuidApi::class)
 data class ReceiptItem(
   val id: String = Uuid.random().toString(),
   val name: String = "",
@@ -197,8 +194,8 @@ class ReceiptSplitViewModel(
     people.value = people.value.filter { it.id != id }
     // Clean up item assignments / share / selection state
     items.value = items.value.map { it.copy(assignedTo = it.assignedTo - id) }
-    shares.value = shares.value - id
-    excluded.value = excluded.value - id
+    shares.value -= id
+    excluded.value -= id
   }
 
   fun renamePerson(id: String, name: String) {
@@ -218,11 +215,11 @@ class ReceiptSplitViewModel(
   }
 
   fun setShare(personId: String, weight: Int) {
-    shares.value = shares.value + (personId to weight.coerceAtLeast(1))
+    shares.value += (personId to weight.coerceAtLeast(1))
   }
 
   fun addItem() {
-    items.value = items.value + ReceiptItem()
+    items.value += ReceiptItem()
   }
 
   fun removeItem(id: String) {
@@ -281,4 +278,10 @@ class ReceiptSplitViewModel(
   }
 }
 
-private data class Quint<A, B, C, D, E>(val a: A, val b: B, val c: C, val d: D, val e: E)
+private data class Quint<A, B, C, D, E>(
+  val a: A,
+  val b: B,
+  val c: C,
+  val d: D,
+  val e: E,
+)

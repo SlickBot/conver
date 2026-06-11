@@ -54,6 +54,7 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 fun HomeScreen(
   onConverterClick: (String) -> Unit,
   onCategoryClick: (Category) -> Unit,
+  modifier: Modifier = Modifier,
   viewModel: HomeViewModel = koinViewModel(),
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -66,7 +67,7 @@ fun HomeScreen(
     label = "search_vertical_padding",
   )
 
-  Column(Modifier.fillMaxSize()) {
+  Column(modifier.fillMaxSize()) {
 
     val searchBarColors = SearchBarDefaults.colors()
     SearchBar(

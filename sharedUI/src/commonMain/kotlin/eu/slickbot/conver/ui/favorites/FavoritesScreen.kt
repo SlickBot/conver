@@ -32,12 +32,14 @@ import org.koin.compose.viewmodel.koinViewModel
 fun FavoritesScreen(
   onConverterClick: (String) -> Unit,
   onBack: () -> Unit,
+  modifier: Modifier = Modifier,
   viewModel: FavoritesViewModel = koinViewModel(),
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
 
   ConverScaffold(
     title = "Favorites",
+    modifier = modifier,
     navigationIcon = {
       IconButton(onClick = onBack) {
         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")

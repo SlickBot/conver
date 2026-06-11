@@ -1,17 +1,15 @@
 package eu.slickbot.conver.data.favorites
 
-import androidx.room3.Entity
-import androidx.room3.PrimaryKey
+import kotlinx.serialization.Serializable
 
-@Entity(tableName = "favorites")
+@Serializable
 data class FavoriteEntity(
-  @PrimaryKey val converterId: String,
+  val converterId: String,
   val addedAt: Long,
 )
 
-@Entity(tableName = "history")
+@Serializable
 data class HistoryEntity(
-  @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val converterId: String,
   val fromUnitId: String,
   val toUnitId: String,

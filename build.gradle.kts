@@ -1,4 +1,4 @@
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import dev.detekt.gradle.extensions.DetektExtension
 
 plugins {
   alias(libs.plugins.android.application) apply false
@@ -8,13 +8,11 @@ plugins {
   alias(libs.plugins.kotlin.compose) apply false
   alias(libs.plugins.kotlin.serialization) apply false
   alias(libs.plugins.compose.multiplatform) apply false
-  alias(libs.plugins.ksp) apply false
-  alias(libs.plugins.room) apply false
   alias(libs.plugins.detekt) apply false
 }
 
 subprojects {
-  pluginManager.withPlugin("io.gitlab.arturbosch.detekt") {
+  pluginManager.withPlugin("dev.detekt") {
     extensions.configure<DetektExtension> {
       buildUponDefaultConfig = true
       config.from(rootProject.files("config/detekt/detekt.yml"))

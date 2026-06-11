@@ -1,7 +1,6 @@
 [versions]
 agp = "9.0.1"
 kotlin = "2.4.0"
-ksp = "2.3.9"
 coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
@@ -16,16 +15,14 @@ turbine = "1.2.1"
 composeMultiplatform = "1.11.1"
 composeMaterial3 = "1.9.0"
 composeMaterialIcons = "1.7.3"
-composeAdaptive = "1.3.0-alpha06"
-room3 = "3.0.0-alpha06"
-androidxSqlite = "2.7.0-alpha06"
-datastoreCore = "1.3.0-alpha09"
+composeAdaptive = "1.3.0-beta01"
+multiplatformSettings = "1.3.0"
 lifecycleKmp = "2.11.0-beta01"
 navigationKmp = "2.9.2"
 kotlincryptoHash = "0.8.0"
 kotlinxBrowser = "0.5.0"
-detekt = "1.23.8"
-composeRules = "0.4.22"
+detekt = "2.0.0-alpha.3"
+composeRules = "0.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,12 +50,10 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
-androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3" }
-androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room3" }
-androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "androidxSqlite" }
-androidx-sqlite-web = { group = "androidx.sqlite", name = "sqlite-web", version.ref = "androidxSqlite" }
-androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastoreCore" }
-jb-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleKmp" }
+multiplatform-settings = { group = "com.russhwolf", name = "multiplatform-settings", version.ref = "multiplatformSettings" }
+multiplatform-settings-coroutines = { group = "com.russhwolf", name = "multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
+multiplatform-settings-make-observable = { group = "com.russhwolf", name = "multiplatform-settings-make-observable", version.ref = "multiplatformSettings" }
+jb-lifecycle-viewmodel ={ group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleKmp" }
 jb-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleKmp" }
 jb-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleKmp" }
 jb-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationKmp" }
@@ -76,17 +71,15 @@ kotlincrypto-hash-bom = { group = "org.kotlincrypto.hash", name = "bom", version
 kotlincrypto-hash-md5 = { group = "org.kotlincrypto.hash", name = "md" }
 kotlincrypto-hash-sha1 = { group = "org.kotlincrypto.hash", name = "sha1" }
 kotlincrypto-hash-sha2 = { group = "org.kotlincrypto.hash", name = "sha2" }
-detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+detekt-formatting = { group = "dev.detekt", name = "detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 detekt-compose-rules = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "composeRules" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
-room = { id = "androidx.room3", version.ref = "room3" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }

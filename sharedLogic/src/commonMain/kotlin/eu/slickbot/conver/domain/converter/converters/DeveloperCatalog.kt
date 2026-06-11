@@ -6,18 +6,15 @@ import eu.slickbot.conver.domain.converter.TextConverter
 import eu.slickbot.conver.domain.converter.hex2Lower
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import org.kotlincrypto.hash.md.MD5
 import org.kotlincrypto.hash.sha1.SHA1
 import org.kotlincrypto.hash.sha2.SHA256
 import org.kotlincrypto.hash.sha2.SHA512
+import kotlin.io.encoding.Base64
+import kotlin.uuid.Uuid
 
 // ---------- Base64 -----------------------------------------------------------------------------
 
-@OptIn(ExperimentalEncodingApi::class)
 fun base64Converter(): TextConverter = TextConverter(
   id = "base64",
   name = "Base64",
@@ -132,7 +129,6 @@ fun hashConverter(): TextConverter = TextConverter(
 
 // ---------- UUID generator ---------------------------------------------------------------------
 
-@OptIn(ExperimentalUuidApi::class)
 fun uuidConverter(): TextConverter = TextConverter(
   id = "uuid",
   name = "UUID generator",

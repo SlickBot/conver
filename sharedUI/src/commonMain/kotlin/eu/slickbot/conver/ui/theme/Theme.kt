@@ -17,6 +17,7 @@ private const val THEME_TRANSITION_MILLIS = 350
 
 @Composable
 fun ConverTheme(
+  modifier: Modifier = Modifier,
   themeMode: ThemeMode = ThemeMode.System,
   dynamicColor: Boolean = true,
   content: @Composable () -> Unit,
@@ -35,18 +36,13 @@ fun ConverTheme(
     else -> LightColors
   }
 
-  // Animate the whole scheme so switching theme cross-fades every surface together. Without this the
-  // change is instant; the TopAppBar (transparent, riding the animated `background`) stays in sync
-  // rather than running Material3's own separate container animation.
   val colorScheme = animateColorScheme(target)
 
   MaterialTheme(
     colorScheme = colorScheme,
     typography = AppTypography,
   ) {
-    // Paint the theme background behind everything - without this, screens that don't sit on a
-    // Scaffold (e.g. Home) show the page's default white, which is invisible against dark-theme text.
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
       content()
     }
   }
