@@ -29,9 +29,11 @@ kotlin {
     browser()
   }
 
+  // iosX64 (Intel simulator) is omitted: the JetBrains org.jetbrains.androidx multiplatform libs
+  // (lifecycle, navigation) don't publish an iosX64 variant - only iosArm64 + iosSimulatorArm64.
+  // Apple-silicon simulators use iosSimulatorArm64, so this only drops Intel-Mac simulator support.
   iosArm64()
   iosSimulatorArm64()
-  iosX64()
 
   sourceSets {
     commonMain.dependencies {
